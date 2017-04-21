@@ -14,43 +14,49 @@ public class DummyPlayer : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		frozen = false;
-
-		// TODO: After hello handshake, set the id. For now, use dummy value
-		id = 1;
+		id = -1;
+		serverCommunication = ServerCommunication.GetRoot ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (serverCommunication == null) {
-			serverCommunication = ServerCommunication.GetRoot ();
-		}
 
+		// Debug code
 		if (Input.GetKeyDown (KeyCode.UpArrow)) {
-			serverCommunication.SendClientWebSocketMessage ("up");
 			SendGameStateMessage ();
-		}
-
-		if (Input.GetKeyDown (KeyCode.DownArrow)) {
 			SendHelloMessage ();
-			SendGameStateMessage ();
 		}
 
-		string serverMessage;
-		if (serverCommunication.TryGetServerUdpMessage(out serverMessage)) {
-			Debug.Log("Server sent UDP: " + serverMessage);
-		}
-		if (serverCommunication.TryGetServerWebSocketMessage(out serverMessage)) {
-			Debug.Log("Server sent WS : " + serverMessage);
-		}
+		QueryUDPConnections ();
+		QueryWebSocketConnections ();
 	}
 
 	private void SendHelloMessage() 
 	{
-		serverCommunication.SendClientWebSocketMessage (JsonUtility.ToJson(new HelloMessage()));
+		serverCommunication.SendClientWebSocketMessage (JsonUtility.ToJson(new ClientHelloMessage()));
+	}
+
+	private void QueryWebSocketConnections() {
+		string serverMessage;
+		if (serverCommunication.TryGetServerWebSocketMessage(out serverMessage)) {
+			Debug.Log("Server sent WS : " + serverMessage);
+
+			if (serverMessage.Contains ("ServerHelloMessage")) {
+				ServerHelloMessage message = JsonUtility.FromJson<ServerHelloMessage> (serverMessage);
+				this.id = message.id;
+				this.transform.position = message.initialPosition.ToVector3 ();
+			}
+
+		}
 	}
 
 	private void SendGameStateMessage() 
 	{
+//		if (id == -1) {
+//			Debug.Log ("ID not set yet!!");
+//			return;
+//		}
+
 		string text = JsonUtility.ToJson(
 			new ClientGameStateMessage(
 				id,
@@ -63,9 +69,13 @@ public class DummyPlayer : MonoBehaviour {
 		serverCommunication.SendClientUdpMessage (text);
 	}
 
-	private void GetGameStateFromOtherClients() 
+	private void QueryUDPConnections()
 	{
 		ServerGameStateMessage message = serverCommunication.CheckForOtherClientGameStates ();
+		if (message == null) {
+			return;
+		}
+
 		// iterate through this and update players on screen
 		foreach (ClientGameStateMessage client in message.clients)
 		{

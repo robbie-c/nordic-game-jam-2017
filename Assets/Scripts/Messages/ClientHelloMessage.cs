@@ -3,11 +3,11 @@
 namespace AssemblyCSharp
 {
 	[Serializable]
-	public class HelloMessage
+	public class ClientHelloMessage
 	{
 		public string type;
 
-		public HelloMessage ()
+		public ClientHelloMessage ()
 		{
 			type = this.GetType().Name;
 		}

@@ -7,10 +7,14 @@ public class DummyPlayer : MonoBehaviour {
 
 	private ServerCommunication serverCommunication;
 	private bool frozen;
+	private int id;
 
 	// Use this for initialization
 	void Start () {
 		frozen = false;
+
+		// TODO: After hello handshake, set the id. For now, use dummy value
+		id = 1;
 	}
 	
 	// Update is called once per frame
@@ -46,7 +50,13 @@ public class DummyPlayer : MonoBehaviour {
 	private void SendGameStateMessage() 
 	{
 		string text = JsonUtility.ToJson(
-			new ClientGameStateMessage(transform.position, transform.forward, GetComponent<Rigidbody>().velocity, frozen)
+			new ClientGameStateMessage(
+				id,
+				transform.position, 
+				transform.forward, 
+				GetComponent<Rigidbody>().velocity, 
+				frozen
+			)
 		);
 		serverCommunication.SendClientUdpMessage (text);
 	}

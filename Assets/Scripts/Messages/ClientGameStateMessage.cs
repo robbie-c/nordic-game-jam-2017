@@ -14,13 +14,15 @@ namespace AssemblyCSharp
 	public class ClientGameStateMessage
 	{
 		public string type;
+		public int id;
 		public Vector3Serialisable playerPosition;
 		public Vector3Serialisable playerDirection;
 		public Vector3Serialisable playerVelocity;
 		public Boolean frozen;
 
-		public ClientGameStateMessage (Vector3 position, Vector3 forwardDirection, Vector3 velocity, Boolean frozen)
+		public ClientGameStateMessage (int id, Vector3 position, Vector3 forwardDirection, Vector3 velocity, Boolean frozen)
 		{
+			this.id = id;
 			type = this.GetType().Name;
 			playerPosition = new Vector3Serialisable (position);
 			playerDirection = new Vector3Serialisable (forwardDirection);

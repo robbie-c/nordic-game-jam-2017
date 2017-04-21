@@ -1,0 +1,24 @@
+{
+  "extends": ["standard"],
+  "env": {
+    "browser": true,
+    "node": true,
+    "mocha": true
+  },
+  "rules": {
+    "semi": [2, "always"],
+    "camelcase": [0, {"properties": "never"}],
+    "react/prop-types": 0,
+    "react/display-name": 0
+  },
+  "plugins": [
+    "react"
+  ],
+  "globals": {
+    "__DEV__": true,
+    "__DEVICE_MODE__": true,
+    "fetch": true,
+    "window": true,
+    "localstorage": true
+  }
+}

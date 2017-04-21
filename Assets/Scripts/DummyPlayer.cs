@@ -40,7 +40,8 @@ public class DummyPlayer : MonoBehaviour {
 		if (serverCommunication.TryGetServerWebSocketMessage(out serverMessage)) {
 			Debug.Log("Server sent WS : " + serverMessage);
 
-			if (serverMessage.Contains ("ServerHelloMessage")) {
+			if (serverMessage.Contains ("ServerToClientHelloMessage")) {
+				Debug.Log("Setting ID and position");
 				ServerHelloMessage message = JsonUtility.FromJson<ServerHelloMessage> (serverMessage);
 				this.id = message.id;
 				this.transform.position = message.initialPosition.ToVector3 ();

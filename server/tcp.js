@@ -20,4 +20,7 @@ export default function createWsServer (onNewConnection, onMessage, onError) {
       onError(client, err);
     });
   });
+  server.on('listening', function () {
+    console.log(`ws server listening on port ${kServerPort} ...`);
+  });
 }

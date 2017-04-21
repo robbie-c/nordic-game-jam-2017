@@ -106,7 +106,6 @@ function * playerStateUpdate () {
 }
 
 export default function * saga () {
-  console.log('sagas', actions.WS_CONNECTION);
   yield takeEvery(actions.WS_CONNECTION, wsConnection);
   yield takeEvery(actions.WS_MESSAGE, wsMessage);
   yield takeEvery(actions.UDP_MESSAGE, udpMessage);

@@ -39,5 +39,3 @@ const store = createStore(
 sagaMiddleware.run(mySaga);
 
 export default store;
-
-console.log(store.dispatch);

@@ -25,6 +25,7 @@ public class DummyPlayer : MonoBehaviour {
 
 		if (Input.GetKeyDown (KeyCode.DownArrow)) {
 			serverCommunication.SendClientGameStateMessage (createHelloMessage());
+			serverCommunication.SendClientGameStateMessage (createDiedMessage());
 		}
 
 		ServerGameStateMessage serverMessage;
@@ -43,5 +44,10 @@ public class DummyPlayer : MonoBehaviour {
 	private string createHelloMessage() 
 	{
 		return JsonUtility.ToJson(new HelloMessage());
+	}
+
+	private string createDiedMessage() 
+	{
+		return JsonUtility.ToJson(new DiedMessage());
 	}
 }

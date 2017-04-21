@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using AssemblyCSharp;
-using System.Collections.Generic;
 
 
 public class DummyPlayer : MonoBehaviour {

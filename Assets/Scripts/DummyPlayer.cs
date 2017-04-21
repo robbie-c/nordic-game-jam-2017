@@ -15,26 +15,26 @@ public class DummyPlayer : MonoBehaviour {
 	void Start () {
 		frozen = false;
 		id = -1;
-		SendHelloMessage ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
-		// call this when debug code is removed
-		// QueryWebSocketConnections ();
-
 		if (serverCommunication == null) {
 			serverCommunication = ServerCommunication.GetRoot ();
 		}
+			
+//		QueryWebSocketConnections ();
 
 		if (Input.GetKeyDown (KeyCode.UpArrow)) {
 			serverCommunication.SendClientWebSocketMessage ("up");
 			SendGameStateMessage ();
+			SendHelloMessage ();
 		}
 
 		if (Input.GetKeyDown (KeyCode.DownArrow)) {
 			SendGameStateMessage ();
+			SendHelloMessage ();
 		}
 
 		string serverMessage;
@@ -66,10 +66,10 @@ public class DummyPlayer : MonoBehaviour {
 
 	private void SendGameStateMessage() 
 	{
-		if (id == -1) {
-			Debug.Log ("ID not set yet!!");
-			return;
-		}
+//		if (id == -1) {
+//			Debug.Log ("ID not set yet!!");
+//			return;
+//		}
 
 		string text = JsonUtility.ToJson(
 			new ClientGameStateMessage(

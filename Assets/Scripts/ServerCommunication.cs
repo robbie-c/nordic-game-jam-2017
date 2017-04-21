@@ -105,4 +105,15 @@ public class ServerCommunication : MonoBehaviour {
 
 		return serverCommunication;
 	}
+
+	public ServerGameStateMessage CheckForOtherClientGameStates() 
+	{
+		ServerGameStateMessage jsonObj = null;
+		string serverMessage;
+		if (TryGetServerUdpMessage(out serverMessage)) 
+		{
+			jsonObj = JsonUtility.FromJson<ServerGameStateMessage> (serverMessage);
+		}
+		return jsonObj;
+	}
 }

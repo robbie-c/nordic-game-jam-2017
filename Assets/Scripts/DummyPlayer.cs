@@ -6,11 +6,11 @@ using AssemblyCSharp;
 public class DummyPlayer : MonoBehaviour {
 
 	private ServerCommunication serverCommunication;
-	private bool exploded;
+	private bool frozen;
 
 	// Use this for initialization
 	void Start () {
-		exploded = false;
+		frozen = false;
 	}
 	
 	// Update is called once per frame
@@ -21,11 +21,12 @@ public class DummyPlayer : MonoBehaviour {
 
 		if (Input.GetKeyDown (KeyCode.UpArrow)) {
 			serverCommunication.SendClientWebSocketMessage ("up");
+			sendGameStateMessage ();
 		}
 
 		if (Input.GetKeyDown (KeyCode.DownArrow)) {
-			serverCommunication.SendClientUdpMessage (createHelloMessage());
-			serverCommunication.SendClientUdpMessage (createDiedMessage());
+			sendHelloMessage ();
+			sendGameStateMessage ();
 		}
 
 		string serverMessage;
@@ -37,20 +38,22 @@ public class DummyPlayer : MonoBehaviour {
 		}
 	}
 
-	private string createGameStateMessage() 
+	private void sendHelloMessage() 
 	{
-		return JsonUtility.ToJson(
-			new ClientGameStateMessage(transform.position, transform.forward, exploded)
+		serverCommunication.SendClientUdpMessage (JsonUtility.ToJson(new HelloMessage()));
+	}
+
+	private void sendGameStateMessage() 
+	{
+		string text = JsonUtility.ToJson(
+			new ClientGameStateMessage(transform.position, transform.forward, GetComponent<Rigidbody>().velocity, frozen)
 		);
+		serverCommunication.SendClientUdpMessage (text);
 	}
 
-	private string createHelloMessage() 
+	private void getGameState() 
 	{
-		return JsonUtility.ToJson(new HelloMessage());
-	}
-
-	private string createDiedMessage() 
-	{
-		return JsonUtility.ToJson(new DiedMessage());
+		ServerGameStateMessage message = serverCommunication.CheckForOtherClientGameStates ();
+		// iterate through this and update players on screen
 	}
 }

@@ -6,8 +6,6 @@ using UnityEngine;
 // Position
 // Forward direction
 // Show frozen animation
-// TODO Bullet position 
-// TODO Dummy position
 
 
 namespace AssemblyCSharp
@@ -16,15 +14,17 @@ namespace AssemblyCSharp
 	public class ClientGameStateMessage
 	{
 		public string type;
-		public PlayerPosition playerPosition;
-		public PlayerDirection playerDirection;
+		public Vector3Serialisable playerPosition;
+		public Vector3Serialisable playerDirection;
+		public Vector3Serialisable playerVelocity;
 		public Boolean frozen;
 
-		public ClientGameStateMessage (Vector3 position, Vector3 forwardDirection, Boolean frozen)
+		public ClientGameStateMessage (Vector3 position, Vector3 forwardDirection, Vector3 velocity, Boolean frozen)
 		{
 			type = this.GetType().Name;
-			playerPosition = new PlayerPosition (position);
-			playerDirection = new PlayerDirection (forwardDirection);
+			playerPosition = new Vector3Serialisable (position);
+			playerDirection = new Vector3Serialisable (forwardDirection);
+			playerVelocity = new Vector3Serialisable (velocity);
 			this.frozen = frozen;
 		}
 	}

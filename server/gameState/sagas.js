@@ -1,9 +1,6 @@
-import { call, put, takeEvery, takeLatest, select } from 'redux-saga/effects'
+import { call, put, takeEvery } from 'redux-saga/effects';
 
 import * as actions from './actions';
-import {
-  selectUdpServer
-} from './selectors';
 
 function * wsConnection ({ client }) {
   const player = {
@@ -38,6 +35,7 @@ function * wsConnection ({ client }) {
     client.send(message);
   }
 
+  console.log('sending hello message to client ' + player.id);
   yield call(
     send,
     JSON.stringify({
@@ -60,14 +58,14 @@ function * udpMessage ({message}) {
   handleMessage(message.playerId, message);
 }
 
-function * handleMessage (playerId, message){
+function * handleMessage (playerId, message) {
   switch (message.type) {
     case 'CLIENT_GAME_STATE_MESSAGE':
       handleClientGameStateMessage(playerId, message);
   }
 }
 
-function * handleClientGameStateMessage(playerId, message) {
+function * handleClientGameStateMessage (playerId, message) {
 }
 
 export default function * saga () {

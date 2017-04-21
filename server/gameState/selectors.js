@@ -1,4 +1,4 @@
 
-export function selectUdpServer(state) {
+export function selectUdpServer (state) {
   return state.udpServer;
 }

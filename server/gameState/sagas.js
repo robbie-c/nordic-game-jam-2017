@@ -110,5 +110,5 @@ export default function * saga () {
   yield takeEvery(actions.WS_CONNECTION, wsConnection);
   yield takeEvery(actions.WS_MESSAGE, wsMessage);
   yield takeEvery(actions.UDP_MESSAGE, udpMessage);
-  yield throttle(1000, actions.PLAYER_STATE_UPDATE, playerStateUpdate);
+  yield throttle(1000, [actions.ADD_PLAYER, actions.PLAYER_STATE_UPDATE]ß, playerStateUpdate);
 }

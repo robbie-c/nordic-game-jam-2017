@@ -3,7 +3,7 @@ const server = dgram.createSocket('udp4');
 
 server.on('error', (err) => {
   console.log(`server error:\n${err.stack}`);
-server.close();
+  server.close();
 });
 
 server.on('message', (msg, rinfo) => {

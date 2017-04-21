@@ -11,18 +11,25 @@ using System.Threading;
 
 using AssemblyCSharp;
 
-public class NewBehaviourScript : MonoBehaviour {
+public class ServerCommunication : MonoBehaviour {
 
 	Thread receiveThread;
 
 	// udpclient object
-	UdpClient client; 
+	UdpClient client;
+	IPEndPoint endpoint;
 
 	ConcurrentQueue<ServerMessage> receivedMessageQueue = new ConcurrentQueue<ServerMessage>();
 
 	// Use this for initialization
 	void Start () {
-		
+		client = new UdpClient(AssemblyCSharp.Constants.kClientPort);
+		var address = IPAddress.Parse(Constants.kServerAddr);
+		endpoint = new IPEndPoint(address, Constants.kServerPort);
+
+		receiveThread = new Thread(new ThreadStart(BackgroundReceiveData));
+		receiveThread.IsBackground = true;
+		receiveThread.Start();
 	}
 	
 	// Update is called once per frame
@@ -30,17 +37,13 @@ public class NewBehaviourScript : MonoBehaviour {
 		
 	}
 
-	private  void BackgroundReceiveData()
+	private void BackgroundReceiveData()
 	{
-		client = new UdpClient(AssemblyCSharp.Constants.kClientPort);
 		while (true)
 		{
 			try
 			{
-				var address = IPAddress.Parse(Constants.kServerAddr);
-				var endpoint = new IPEndPoint(address, Constants.kServerPort);
 				byte[] data = client.Receive(ref endpoint);
-
 				string text = Encoding.UTF8.GetString(data);
 
 				var serverMessage = new ServerMessage(text);
@@ -54,4 +57,20 @@ public class NewBehaviourScript : MonoBehaviour {
 		}
 	}
 
+	public bool TryGetServerMessage(out ServerMessage serverMessage) {
+		return receivedMessageQueue.TryDequeue (out serverMessage);
+	}
+
+	public void SendClientMessage(ClientMessage clientMessage) {
+		byte[] data = Encoding.UTF8.GetBytes(clientMessage.text);
+		client.Send(data, data.Length, endpoint);
+	}
+
+	public static ServerCommunication GetRoot() {
+		var serverCommunicationObj = GameObject.Find("/ServerCommunication");
+		var serverCommunication = serverCommunicationObj.GetComponent<ServerCommunication> ();
+		Debug.Log (serverCommunication);
+
+		return serverCommunication;
+	}
 }

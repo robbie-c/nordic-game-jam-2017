@@ -21,12 +21,12 @@ public class DummyPlayer : MonoBehaviour {
 
 		if (Input.GetKeyDown (KeyCode.UpArrow)) {
 			serverCommunication.SendClientWebSocketMessage ("up");
-			sendGameStateMessage ();
+			SendGameStateMessage ();
 		}
 
 		if (Input.GetKeyDown (KeyCode.DownArrow)) {
-			sendHelloMessage ();
-			sendGameStateMessage ();
+			SendHelloMessage ();
+			SendGameStateMessage ();
 		}
 
 		string serverMessage;
@@ -38,12 +38,12 @@ public class DummyPlayer : MonoBehaviour {
 		}
 	}
 
-	private void sendHelloMessage() 
+	private void SendHelloMessage() 
 	{
-		serverCommunication.SendClientUdpMessage (JsonUtility.ToJson(new HelloMessage()));
+		serverCommunication.SendClientWebSocketMessage (JsonUtility.ToJson(new HelloMessage()));
 	}
 
-	private void sendGameStateMessage() 
+	private void SendGameStateMessage() 
 	{
 		string text = JsonUtility.ToJson(
 			new ClientGameStateMessage(transform.position, transform.forward, GetComponent<Rigidbody>().velocity, frozen)
@@ -51,7 +51,7 @@ public class DummyPlayer : MonoBehaviour {
 		serverCommunication.SendClientUdpMessage (text);
 	}
 
-	private void getGameState() 
+	private void GetGameStateFromOtherClients() 
 	{
 		ServerGameStateMessage message = serverCommunication.CheckForOtherClientGameStates ();
 		// iterate through this and update players on screen

@@ -46,10 +46,10 @@ public class DummyPlayer : MonoBehaviour {
 
 	private void SendGameStateMessage() 
 	{
-//		if (id == -1) {
-//			Debug.Log ("ID not set yet!!");
-//			return;
-//		}
+		if (id == -1) {
+			Debug.Log ("ID not set yet!!");
+			return;
+		}
 
 		string text = JsonUtility.ToJson(
 			new ClientGameStateMessage(

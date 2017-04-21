@@ -6,9 +6,11 @@ using AssemblyCSharp;
 public class DummyPlayer : MonoBehaviour {
 
 	private ServerCommunication serverCommunication;
+	private bool exploded;
 
 	// Use this for initialization
 	void Start () {
+		exploded = false;
 	}
 	
 	// Update is called once per frame
@@ -18,13 +20,18 @@ public class DummyPlayer : MonoBehaviour {
 		}
 
 		if (Input.GetKeyDown (KeyCode.UpArrow)) {
-			string text = ClientMessageCoordinator.createGameStateMessage (transform.position, transform.forward);
-			serverCommunication.SendClientGameStateMessage (text);
+			serverCommunication.SendClientGameStateMessage (createGameStateMessage());
 		}
 
 		ServerGameStateMessage serverMessage;
 		if (serverCommunication.TryGetServerGameStateMessage(out serverMessage)) {
 			Debug.Log("Server sent: " + serverMessage.text);
 		}
+	}
+
+	private string createGameStateMessage() 
+	{
+		ClientGameStateMessage playerPosObj = new ClientGameStateMessage(transform.position, transform.forward, exploded);
+		return JsonUtility.ToJson(playerPosObj);
 	}
 }

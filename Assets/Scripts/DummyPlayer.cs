@@ -23,6 +23,10 @@ public class DummyPlayer : MonoBehaviour {
 			serverCommunication.SendClientGameStateMessage (createGameStateMessage());
 		}
 
+		if (Input.GetKeyDown (KeyCode.DownArrow)) {
+			serverCommunication.SendClientGameStateMessage (createHelloMessage());
+		}
+
 		ServerGameStateMessage serverMessage;
 		if (serverCommunication.TryGetServerGameStateMessage(out serverMessage)) {
 			Debug.Log("Server sent: " + serverMessage.text);
@@ -31,7 +35,13 @@ public class DummyPlayer : MonoBehaviour {
 
 	private string createGameStateMessage() 
 	{
-		ClientGameStateMessage playerPosObj = new ClientGameStateMessage(transform.position, transform.forward, exploded);
-		return JsonUtility.ToJson(playerPosObj);
+		return JsonUtility.ToJson(
+			new ClientGameStateMessage(transform.position, transform.forward, exploded)
+		);
+	}
+
+	private string createHelloMessage() 
+	{
+		return JsonUtility.ToJson(new HelloMessage());
 	}
 }

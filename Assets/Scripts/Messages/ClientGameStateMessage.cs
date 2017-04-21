@@ -5,6 +5,7 @@ using UnityEngine;
 // udp client: client state
 // Position
 // Forward direction
+// Show exploding animation
 // TODO Bullet position 
 // TODO Dummy position
 
@@ -14,6 +15,7 @@ namespace AssemblyCSharp
 	[Serializable]
 	public class ClientGameStateMessage
 	{
+		public string type;
 		public float posX;
 		public float posY;
 		public float posZ;
@@ -24,6 +26,7 @@ namespace AssemblyCSharp
 
 		public ClientGameStateMessage (Vector3 position, Vector3 forwardDirection, Boolean exploded)
 		{
+			type = this.GetType().Name;
 			posX = position.x;
 			posY = position.y;
 			posZ = position.z;

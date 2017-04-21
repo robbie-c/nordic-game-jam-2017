@@ -61,11 +61,6 @@ public class ServerCommunication : MonoBehaviour {
 		return receivedMessageQueue.TryDequeue (out serverMessage);
 	}
 
-//	public void SendClientGameStateMessage(ClientGameStateMessage clientMessage) {
-//		byte[] data = Encoding.UTF8.GetBytes(clientMessage.text);
-//		udpClient.Send(data, data.Length, endpoint);
-//	}
-
 	public void SendClientGameStateMessage(string text) {
 		byte[] data = Encoding.UTF8.GetBytes(text);
 		udpClient.Send(data, data.Length, endpoint);

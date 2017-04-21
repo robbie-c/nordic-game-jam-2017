@@ -20,17 +20,20 @@ public class DummyPlayer : MonoBehaviour {
 		}
 
 		if (Input.GetKeyDown (KeyCode.UpArrow)) {
-			serverCommunication.SendClientGameStateMessage (createGameStateMessage());
+			serverCommunication.SendClientWebSocketMessage ("up");
 		}
 
 		if (Input.GetKeyDown (KeyCode.DownArrow)) {
-			serverCommunication.SendClientGameStateMessage (createHelloMessage());
-			serverCommunication.SendClientGameStateMessage (createDiedMessage());
+			serverCommunication.SendClientUdpMessage (createHelloMessage());
+			serverCommunication.SendClientUdpMessage (createDiedMessage());
 		}
 
-		ServerGameStateMessage serverMessage;
-		if (serverCommunication.TryGetServerGameStateMessage(out serverMessage)) {
-			Debug.Log("Server sent: " + serverMessage.text);
+		string serverMessage;
+		if (serverCommunication.TryGetServerUdpMessage(out serverMessage)) {
+			Debug.Log("Server sent UDP: " + serverMessage);
+		}
+		if (serverCommunication.TryGetServerWebSocketMessage(out serverMessage)) {
+			Debug.Log("Server sent WS : " + serverMessage);
 		}
 	}
 

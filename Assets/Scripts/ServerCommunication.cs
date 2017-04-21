@@ -57,12 +57,20 @@ public class ServerCommunication : MonoBehaviour {
 		}
 	}
 
-	public bool TryGetMessage(out ServerMessage serverMessage) {
+	public bool TryGetServerMessage(out ServerMessage serverMessage) {
 		return receivedMessageQueue.TryDequeue (out serverMessage);
 	}
 
-	public void SendMessage(ClientMessage clientMessage) {
+	public void SendClientMessage(ClientMessage clientMessage) {
 		byte[] data = Encoding.UTF8.GetBytes(clientMessage.text);
 		client.Send(data, data.Length, endpoint);
+	}
+
+	public static ServerCommunication GetRoot() {
+		var serverCommunicationObj = GameObject.Find("/ServerCommunication");
+		var serverCommunication = serverCommunicationObj.GetComponent<ServerCommunication> ();
+		Debug.Log (serverCommunication);
+
+		return serverCommunication;
 	}
 }

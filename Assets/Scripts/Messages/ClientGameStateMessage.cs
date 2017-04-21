@@ -16,23 +16,15 @@ namespace AssemblyCSharp
 	public class ClientGameStateMessage
 	{
 		public string type;
-		public float posX;
-		public float posY;
-		public float posZ;
-		public float forwardX;
-		public float forwardY;
-		public float forwardZ;
+		public PlayerPosition playerPosition;
+		public PlayerDirection playerDirection;
 		public Boolean exploded;
 
 		public ClientGameStateMessage (Vector3 position, Vector3 forwardDirection, Boolean exploded)
 		{
 			type = this.GetType().Name;
-			posX = position.x;
-			posY = position.y;
-			posZ = position.z;
-			forwardX = forwardDirection.x;
-			forwardY = forwardDirection.y;
-			forwardZ = forwardDirection.z;
+			playerPosition = new PlayerPosition (position);
+			playerDirection = new PlayerDirection (forwardDirection);
 			this.exploded = exploded;
 		}
 	}

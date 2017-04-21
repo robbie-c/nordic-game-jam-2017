@@ -1,4 +1,7 @@
 import dgram from 'dgram';
+
+import { kServerPort } from './constants';
+
 const server = dgram.createSocket('udp4');
 
 server.on('error', (err) => {
@@ -8,6 +11,7 @@ server.on('error', (err) => {
 
 server.on('message', (msg, rinfo) => {
   console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
+  server.send(msg, 0, msg.length, rinfo.port, rinfo.address);
 });
 
 server.on('listening', () => {
@@ -15,4 +19,4 @@ server.on('listening', () => {
   console.log(`server listening ${address.address}:${address.port}`);
 });
 
-server.bind(41234);
+server.bind(kServerPort);

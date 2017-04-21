@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using AssemblyCSharp;
+using System.Collections.Generic;
+
 
 public class DummyPlayer : MonoBehaviour {
 
@@ -65,5 +67,15 @@ public class DummyPlayer : MonoBehaviour {
 	{
 		ServerGameStateMessage message = serverCommunication.CheckForOtherClientGameStates ();
 		// iterate through this and update players on screen
+		foreach (ClientGameStateMessage client in message.clients)
+		{
+			Vector3 position = client.playerPosition.ToVector3 ();
+			Vector3 velocity = client.playerVelocity.ToVector3 ();
+			Vector3 direction = client.playerDirection.ToVector3 ();
+			int id = client.id;
+
+			// TODO: do something with this info
+		}
+
 	}
 }

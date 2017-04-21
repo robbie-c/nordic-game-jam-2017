@@ -13,11 +13,10 @@ public class PlayerMovement : MonoBehaviour {
 	// Player position etc
 	public Transform playerLocation;
 	public Vector3 velocity;
-	Quaternion direction;
 
 	// Player stats
 	public float acceleration = 0.001f;
-	public float turningSpeed = 10f;
+	public float turningSpeed = 100f;
 	public float dragCoefficient = 0.1f;
 	public float minimumSpeed = 0.01f;
 
@@ -28,7 +27,7 @@ public class PlayerMovement : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		
+
 	}
 	
 	// Update is called once per frame
@@ -45,7 +44,6 @@ public class PlayerMovement : MonoBehaviour {
 		velocity = UpdateVelocity(Vector3.up * 0.001f);
 		UpdatePosition(velocity);
 		if (wantsToTurnRight && !wantsToTurnLeft) {
-			Debug.Log("Wants to turn right");
 			Turn(turningSpeed, true);
 		}
 		if (wantsToTurnLeft && !wantsToTurnRight) {
@@ -63,12 +61,16 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	void Turn(float speed, bool right) {
-		Debug.Log("called Turn");
-		playerLocation.Rotate(0.0f, 0.0f, Time.deltaTime * speed);
+		if (right) {
+			playerLocation.Rotate(0.0f, 0.0f, Time.deltaTime * -speed);
+		} else {
+			playerLocation.Rotate(0.0f, 0.0f, Time.deltaTime * speed);
+		}
+		
 	}
 
 	void Accelerate (float acceleration) {
-
+		Debug.Log (playerLocation.forward);
 	}
 
 	Vector3 UpdateVelocity (Vector3 acceleration) {

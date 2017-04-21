@@ -7,13 +7,8 @@
   },
   "rules": {
     "semi": [2, "always"],
-    "camelcase": [0, {"properties": "never"}],
-    "react/prop-types": 0,
-    "react/display-name": 0
+    "camelcase": [0, {"properties": "never"}]
   },
-  "plugins": [
-    "react"
-  ],
   "globals": {
     "__DEV__": true,
     "__DEVICE_MODE__": true,

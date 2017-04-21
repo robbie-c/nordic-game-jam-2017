@@ -10,26 +10,49 @@ using System.Net.Sockets;
 using System.Threading;
 
 using AssemblyCSharp;
+using WebSocketSharp;
 
 public class ServerCommunication : MonoBehaviour {
 
 	Thread receiveThread;
 
-	// udpclient object
+	IPEndPoint udpEndpoint;
 	UdpClient udpClient;
-	IPEndPoint endpoint;
+	WebSocket webSocket;
 
-	ConcurrentQueue<ServerGameStateMessage> receivedMessageQueue = new ConcurrentQueue<ServerGameStateMessage>();
+	ConcurrentQueue<string> receivedUdpMessageQueue = new ConcurrentQueue<string>();
+	ConcurrentQueue<string> receivedWebSocketMessageQueue = new ConcurrentQueue<string>();
 
-	// Use this for initialization
-	void Start () {
+	IEnumerator Start () {
 		udpClient = new UdpClient(AssemblyCSharp.Constants.kClientPort);
 		var address = IPAddress.Parse(Constants.kServerAddr);
-		endpoint = new IPEndPoint(address, Constants.kServerPort);
+		udpEndpoint = new IPEndPoint(address, Constants.kServerPort);
 
 		receiveThread = new Thread(new ThreadStart(BackgroundReceiveData));
 		receiveThread.IsBackground = true;
 		receiveThread.Start();
+
+		var builder = new UriBuilder("ws", Constants.kServerAddr, Constants.kServerPort);
+		var uri = builder.Uri;
+		Debug.Log (uri);
+		webSocket = new WebSocket(uri);
+		yield return StartCoroutine(webSocket.Connect());
+
+		while (true)
+		{
+			string reply = webSocket.RecvString();
+			if (reply != null)
+			{
+				receivedWebSocketMessageQueue.Enqueue (reply);
+			}
+			if (webSocket.error != null)
+			{
+				Debug.LogError ("Error: " + webSocket.error);
+				break;
+			}
+			yield return 0;
+		}
+		webSocket.Close();
 	}
 	
 	// Update is called once per frame
@@ -43,12 +66,12 @@ public class ServerCommunication : MonoBehaviour {
 		{
 			try
 			{
-				byte[] data = udpClient.Receive(ref endpoint);
+				byte[] data = udpClient.Receive(ref udpEndpoint);
 				string text = Encoding.UTF8.GetString(data);
 
-				var serverMessage = new ServerGameStateMessage(text);
+				var serverMessage = text;
 
-				receivedMessageQueue.Enqueue(serverMessage);
+				receivedUdpMessageQueue.Enqueue(serverMessage);
 			}
 			catch (Exception err)
 			{
@@ -57,25 +80,41 @@ public class ServerCommunication : MonoBehaviour {
 		}
 	}
 
-	public bool TryGetServerGameStateMessage(out ServerGameStateMessage serverMessage) {
-		return receivedMessageQueue.TryDequeue (out serverMessage);
+	public bool TryGetServerUdpMessage(out string serverMessage) {
+		return receivedUdpMessageQueue.TryDequeue (out serverMessage);
+	}
+		
+	public void SendClientUdpMessage(string clientMessage) {
+		byte[] data = Encoding.UTF8.GetBytes(clientMessage);
+		udpClient.Send(data, data.Length, udpEndpoint);
 	}
 
-//	public void SendClientGameStateMessage(ClientGameStateMessage clientMessage) {
-//		byte[] data = Encoding.UTF8.GetBytes(clientMessage.text);
-//		udpClient.Send(data, data.Length, endpoint);
-//	}
-
-	public void SendClientGameStateMessage(string text) {
-		byte[] data = Encoding.UTF8.GetBytes(text);
-		udpClient.Send(data, data.Length, endpoint);
+	public bool TryGetServerWebSocketMessage(out string serverMessage) {
+		return receivedWebSocketMessageQueue.TryDequeue (out serverMessage);
 	}
 
+	public void SendClientWebSocketMessage(string clientMessage) {
+		byte[] data = Encoding.UTF8.GetBytes(clientMessage);
+		webSocket.Send (data);
+	}
+		
 	public static ServerCommunication GetRoot() {
 		var serverCommunicationObj = GameObject.Find("/ServerCommunication");
 		var serverCommunication = serverCommunicationObj.GetComponent<ServerCommunication> ();
 		Debug.Log (serverCommunication);
 
 		return serverCommunication;
+	}
+
+	public ServerGameStateMessage CheckForOtherClientGameStates() 
+	{
+		ServerGameStateMessage jsonObj = null;
+		string serverMessage;
+		if (TryGetServerUdpMessage(out serverMessage)) 
+		{
+			Debug.Log("Server sent UDP GameState: " + serverMessage);
+			jsonObj = JsonUtility.FromJson<ServerGameStateMessage> (serverMessage);
+		}
+		return jsonObj;
 	}
 }

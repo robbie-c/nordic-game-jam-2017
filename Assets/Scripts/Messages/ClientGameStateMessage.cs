@@ -1,20 +1,33 @@
 ﻿using System;
 using UnityEngine;
 
+
+// udp client: client state
+// Position
+// Forward direction
+// Show frozen animation
+
+
 namespace AssemblyCSharp
 {
 	[Serializable]
 	public class ClientGameStateMessage
 	{
-		public float x;
-		public float y;
-		public float z;
+		public string type;
+		public int id;
+		public Vector3Serialisable playerPosition;
+		public Vector3Serialisable playerDirection;
+		public Vector3Serialisable playerVelocity;
+		public Boolean frozen;
 
-		public ClientGameStateMessage (Vector3 position)
+		public ClientGameStateMessage (int id, Vector3 position, Vector3 forwardDirection, Vector3 velocity, Boolean frozen)
 		{
-			x = position.x;
-			y = position.y;
-			z = position.z;
+			this.id = id;
+			type = this.GetType().Name;
+			playerPosition = new Vector3Serialisable (position);
+			playerDirection = new Vector3Serialisable (forwardDirection);
+			playerVelocity = new Vector3Serialisable (velocity);
+			this.frozen = frozen;
 		}
 	}
 }

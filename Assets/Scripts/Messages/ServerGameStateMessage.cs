@@ -1,15 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+
 
 namespace AssemblyCSharp
 {
+	[Serializable]
 	public class ServerGameStateMessage
 	{
-		public readonly string text;
-
-		public ServerGameStateMessage (string text)
-		{
-			this.text = text;
-		}
+		public List<ClientGameStateMessage> clients;
+		public string type;
 	}
 }
 

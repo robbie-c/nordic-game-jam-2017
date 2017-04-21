@@ -24,7 +24,8 @@ public class DummyPlayer : MonoBehaviour {
 		}
 
 		if (Input.GetKeyDown (KeyCode.DownArrow)) {
-			serverCommunication.SendClientWebSocketMessage ("down");
+			serverCommunication.SendClientUdpMessage (createHelloMessage());
+			serverCommunication.SendClientUdpMessage (createDiedMessage());
 		}
 
 		string serverMessage;
@@ -46,5 +47,10 @@ public class DummyPlayer : MonoBehaviour {
 	private string createHelloMessage() 
 	{
 		return JsonUtility.ToJson(new HelloMessage());
+	}
+
+	private string createDiedMessage() 
+	{
+		return JsonUtility.ToJson(new DiedMessage());
 	}
 }

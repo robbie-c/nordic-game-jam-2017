@@ -112,6 +112,7 @@ public class ServerCommunication : MonoBehaviour {
 		string serverMessage;
 		if (TryGetServerUdpMessage(out serverMessage)) 
 		{
+			Debug.Log("Server sent UDP GameState: " + serverMessage);
 			jsonObj = JsonUtility.FromJson<ServerGameStateMessage> (serverMessage);
 		}
 		return jsonObj;

@@ -15,35 +15,20 @@ public class DummyPlayer : MonoBehaviour {
 	void Start () {
 		frozen = false;
 		id = -1;
+		serverCommunication = ServerCommunication.GetRoot ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
-		if (serverCommunication == null) {
-			serverCommunication = ServerCommunication.GetRoot ();
-		}
-			
-//		QueryWebSocketConnections ();
-
+		// Debug code
 		if (Input.GetKeyDown (KeyCode.UpArrow)) {
-			serverCommunication.SendClientWebSocketMessage ("up");
 			SendGameStateMessage ();
 			SendHelloMessage ();
 		}
 
-		if (Input.GetKeyDown (KeyCode.DownArrow)) {
-			SendGameStateMessage ();
-			SendHelloMessage ();
-		}
-
-		string serverMessage;
-		if (serverCommunication.TryGetServerUdpMessage(out serverMessage)) {
-			Debug.Log("Server sent UDP: " + serverMessage);
-		}
-		if (serverCommunication.TryGetServerWebSocketMessage(out serverMessage)) {
-			Debug.Log("Server sent WS : " + serverMessage);
-		}
+		QueryUDPConnections ();
+		QueryWebSocketConnections ();
 	}
 
 	private void SendHelloMessage() 
@@ -54,6 +39,7 @@ public class DummyPlayer : MonoBehaviour {
 	private void QueryWebSocketConnections() {
 		string serverMessage;
 		if (serverCommunication.TryGetServerWebSocketMessage(out serverMessage)) {
+			Debug.Log("Server sent WS : " + serverMessage);
 
 			if (serverMessage.Contains ("ServerHelloMessage")) {
 				ServerHelloMessage message = JsonUtility.FromJson<ServerHelloMessage> (serverMessage);
@@ -83,9 +69,13 @@ public class DummyPlayer : MonoBehaviour {
 		serverCommunication.SendClientUdpMessage (text);
 	}
 
-	private void GetGameStateFromOtherClients() 
+	private void QueryUDPConnections()
 	{
 		ServerGameStateMessage message = serverCommunication.CheckForOtherClientGameStates ();
+		if (message == null) {
+			return;
+		}
+
 		// iterate through this and update players on screen
 		foreach (ClientGameStateMessage client in message.clients)
 		{

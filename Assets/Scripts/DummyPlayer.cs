@@ -14,13 +14,16 @@ public class DummyPlayer : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		frozen = false;
-
-		// TODO: After hello handshake, set the id. For now, use dummy value
-		id = 1;
+		id = -1;
+		SendHelloMessage ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
+
+		// call this when debug code is removed
+		// QueryWebSocketConnections ();
+
 		if (serverCommunication == null) {
 			serverCommunication = ServerCommunication.GetRoot ();
 		}
@@ -31,7 +34,6 @@ public class DummyPlayer : MonoBehaviour {
 		}
 
 		if (Input.GetKeyDown (KeyCode.DownArrow)) {
-			SendHelloMessage ();
 			SendGameStateMessage ();
 		}
 
@@ -46,11 +48,29 @@ public class DummyPlayer : MonoBehaviour {
 
 	private void SendHelloMessage() 
 	{
-		serverCommunication.SendClientWebSocketMessage (JsonUtility.ToJson(new HelloMessage()));
+		serverCommunication.SendClientWebSocketMessage (JsonUtility.ToJson(new ClientHelloMessage()));
+	}
+
+	private void QueryWebSocketConnections() {
+		string serverMessage;
+		if (serverCommunication.TryGetServerWebSocketMessage(out serverMessage)) {
+
+			if (serverMessage.Contains ("ServerHelloMessage")) {
+				ServerHelloMessage message = JsonUtility.FromJson<ServerHelloMessage> (serverMessage);
+				this.id = message.id;
+				this.transform.position = message.initialPosition.ToVector3 ();
+			}
+
+		}
 	}
 
 	private void SendGameStateMessage() 
 	{
+		if (id == -1) {
+			Debug.Log ("ID not set yet!!");
+			return;
+		}
+
 		string text = JsonUtility.ToJson(
 			new ClientGameStateMessage(
 				id,

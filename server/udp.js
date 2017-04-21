@@ -13,7 +13,6 @@ export default function createUdpServer (onCreate, onMessage, onError) {
 
   udpServer.on('message', (msg, rinfo) => {
     console.log(`server got udp: ${msg} from ${rinfo.address}:${rinfo.port}`);
-    udpServer.send(msg, 0, msg.length, rinfo.port, rinfo.address);
     onMessage(rinfo, JSON.parse(msg));
   });
 
@@ -25,5 +24,3 @@ export default function createUdpServer (onCreate, onMessage, onError) {
 
   udpServer.bind(kServerPort);
 }
-
-

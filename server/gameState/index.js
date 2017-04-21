@@ -32,7 +32,7 @@ const initialState = {};
 const store = createStore(
   reducer,
   initialState,
-  compose(applyMiddleware(...getMiddleware(true)))
+  compose(applyMiddleware(...getMiddleware(false)))
 );
 
 // then run the saga

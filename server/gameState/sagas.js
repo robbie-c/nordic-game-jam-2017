@@ -1,6 +1,15 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
+import { call, put, takeEvery, throttle, select } from 'redux-saga/effects';
 
 import * as actions from './actions';
+import {
+  selectUdpServer,
+  selectPlayers
+} from './selectors';
+import {
+  udpSend
+} from './calls';
+
+import { kClientPort } from '../constants';
 
 function * wsConnection ({ client }) {
   const player = {
@@ -24,8 +33,6 @@ function * wsConnection ({ client }) {
     id: client.playerId
   };
 
-  console.log('about to put');
-
   yield put({
     type: actions.ADD_PLAYER,
     player
@@ -43,29 +50,59 @@ function * wsConnection ({ client }) {
       id: player.id,
       playerPosition: player.playerPosition,
       playerDirection: player.playerDirection,
-      playerVelocity: player.playerVelocity
+      playerVelocity: player.playerVelocity,
+      frozen: player.frozen
     })
   );
-
-  console.log('should have emitted');
 }
 
 function * wsMessage ({message}) {
-  handleMessage(message.playerId, message);
+  yield * handleMessage(message.id, message);
 }
 
-function * udpMessage ({message}) {
-  handleMessage(message.playerId, message);
+function * udpMessage ({message, rinfo}) {
+  yield * handleMessage(message.id, message);
 }
 
 function * handleMessage (playerId, message) {
   switch (message.type) {
-    case 'CLIENT_GAME_STATE_MESSAGE':
-      handleClientGameStateMessage(playerId, message);
+    case 'ClientGameStateMessage':
+      yield * handleClientGameStateMessage(playerId, message);
   }
 }
 
 function * handleClientGameStateMessage (playerId, message) {
+  console.log('handle client game state message ' + playerId);
+  yield put({
+    type: actions.PLAYER_STATE_UPDATE,
+    playerId,
+    message
+  });
+}
+
+function * playerStateUpdate () {
+  const udpServer = yield select(selectUdpServer);
+  const players = yield select(selectPlayers);
+
+  const message = JSON.stringify({
+    type: 'ServerGameStateMessage',
+    clients: players.map((player) => {
+      return {
+        id: player.id,
+        playerPosition: player.playerPosition,
+        playerDirection: player.playerDirection,
+        playerVelocity: player.playerVelocity,
+        frozen: player.frozen
+      };
+    })
+  });
+
+  for (const player of players) {
+    console.log(player.id, player.udpAddr, player.udpPort);
+    if (player.id >= 0 && player.udpAddr && player.udpPort) {
+      yield call(udpSend, udpServer, player.udpAddr, player.udpPort, message);
+    }
+  }
 }
 
 export default function * saga () {
@@ -73,4 +110,5 @@ export default function * saga () {
   yield takeEvery(actions.WS_CONNECTION, wsConnection);
   yield takeEvery(actions.WS_MESSAGE, wsMessage);
   yield takeEvery(actions.UDP_MESSAGE, udpMessage);
+  yield throttle(1000, actions.PLAYER_STATE_UPDATE, playerStateUpdate);
 }

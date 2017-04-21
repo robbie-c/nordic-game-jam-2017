@@ -33,11 +33,11 @@ function onUdpCreate (udpServer) {
   });
 }
 
-function onUdpMessage (rinfo, msg) {
+function onUdpMessage (rinfo, message) {
   dispatch({
     type: actions.UDP_MESSAGE,
     rinfo,
-    msg
+    message
   });
 }
 

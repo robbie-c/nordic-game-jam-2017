@@ -4,3 +4,4 @@ export const UDP_CREATE = 'UDP_CREATE';
 export const UDP_MESSAGE = 'UDP_MESSAGE';
 
 export const ADD_PLAYER = 'ADD_PLAYER';
+export const PLAYER_STATE_UPDATE = 'PLAYER_STATE_UPDATE';

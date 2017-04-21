@@ -23,16 +23,10 @@ public class DummyPlayer : MonoBehaviour {
 		// Debug code
 		if (Input.GetKeyDown (KeyCode.UpArrow)) {
 			SendGameStateMessage ();
-			SendHelloMessage ();
 		}
 
 		QueryUDPConnections ();
 		QueryWebSocketConnections ();
-	}
-
-	private void SendHelloMessage() 
-	{
-		serverCommunication.SendClientWebSocketMessage (JsonUtility.ToJson(new ClientHelloMessage()));
 	}
 
 	private void QueryWebSocketConnections() {

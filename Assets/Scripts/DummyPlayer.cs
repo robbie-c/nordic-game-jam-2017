@@ -9,7 +9,6 @@ public class DummyPlayer : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		
 	}
 	
 	// Update is called once per frame
@@ -19,10 +18,11 @@ public class DummyPlayer : MonoBehaviour {
 		}
 
 		if (Input.GetKeyDown (KeyCode.UpArrow)) {
-			serverCommunication.SendClientGameStateMessage (new ClientMessage ("up"));
+			string text = ClientMessageCoordinator.createPlayerPosition (transform.position);
+			serverCommunication.SendClientGameStateMessage (text);
 		}
 
-		ServerMessage serverMessage;
+		ServerGameStateMessage serverMessage;
 		if (serverCommunication.TryGetServerGameStateMessage(out serverMessage)) {
 			Debug.Log("Server sent: " + serverMessage.text);
 		}

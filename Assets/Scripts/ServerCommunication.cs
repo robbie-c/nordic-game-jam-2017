@@ -19,7 +19,7 @@ public class ServerCommunication : MonoBehaviour {
 	UdpClient udpClient;
 	IPEndPoint endpoint;
 
-	ConcurrentQueue<ServerMessage> receivedMessageQueue = new ConcurrentQueue<ServerMessage>();
+	ConcurrentQueue<ServerGameStateMessage> receivedMessageQueue = new ConcurrentQueue<ServerGameStateMessage>();
 
 	// Use this for initialization
 	void Start () {
@@ -46,7 +46,7 @@ public class ServerCommunication : MonoBehaviour {
 				byte[] data = udpClient.Receive(ref endpoint);
 				string text = Encoding.UTF8.GetString(data);
 
-				var serverMessage = new ServerMessage(text);
+				var serverMessage = new ServerGameStateMessage(text);
 
 				receivedMessageQueue.Enqueue(serverMessage);
 			}
@@ -57,12 +57,17 @@ public class ServerCommunication : MonoBehaviour {
 		}
 	}
 
-	public bool TryGetServerGameStateMessage(out ServerMessage serverMessage) {
+	public bool TryGetServerGameStateMessage(out ServerGameStateMessage serverMessage) {
 		return receivedMessageQueue.TryDequeue (out serverMessage);
 	}
 
-	public void SendClientGameStateMessage(ClientMessage clientMessage) {
-		byte[] data = Encoding.UTF8.GetBytes(clientMessage.text);
+//	public void SendClientGameStateMessage(ClientGameStateMessage clientMessage) {
+//		byte[] data = Encoding.UTF8.GetBytes(clientMessage.text);
+//		udpClient.Send(data, data.Length, endpoint);
+//	}
+
+	public void SendClientGameStateMessage(string text) {
+		byte[] data = Encoding.UTF8.GetBytes(text);
 		udpClient.Send(data, data.Length, endpoint);
 	}
 

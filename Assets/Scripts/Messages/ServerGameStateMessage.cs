@@ -2,17 +2,13 @@
 
 namespace AssemblyCSharp
 {
-	public class ServerMessage : IGameMessage
+	public class ServerGameStateMessage
 	{
 		public readonly string text;
 
-		public ServerMessage (string text)
+		public ServerGameStateMessage (string text)
 		{
 			this.text = text;
-		}
-
-		public string SerializeToJson() {
-			return "";
 		}
 	}
 }

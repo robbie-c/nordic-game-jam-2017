@@ -19,12 +19,12 @@ public class DummyPlayer : MonoBehaviour {
 		}
 
 		if (Input.GetKeyDown (KeyCode.UpArrow)) {
-			serverCommunication.SendClientMessage (new ClientMessage ("up"));
+			serverCommunication.SendClientGameStateMessage (new ClientMessage ("up"));
 		}
 
 		ServerMessage serverMessage;
-		if (serverCommunication.TryGetServerMessage(out serverMessage)) {
-			Debug.Log(serverMessage.text);
+		if (serverCommunication.TryGetServerGameStateMessage(out serverMessage)) {
+			Debug.Log("Server sent: " + serverMessage.text);
 		}
 	}
 }

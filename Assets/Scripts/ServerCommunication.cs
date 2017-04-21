@@ -16,7 +16,7 @@ public class ServerCommunication : MonoBehaviour {
 	Thread receiveThread;
 
 	// udpclient object
-	UdpClient client;
+	UdpClient udpClient;
 	IPEndPoint endpoint;
 
 	ConcurrentQueue<ServerMessage> receivedMessageQueue = new ConcurrentQueue<ServerMessage>();
@@ -43,7 +43,7 @@ public class ServerCommunication : MonoBehaviour {
 		{
 			try
 			{
-				byte[] data = client.Receive(ref endpoint);
+				byte[] data = udpClient.Receive(ref endpoint);
 				string text = Encoding.UTF8.GetString(data);
 
 				var serverMessage = new ServerMessage(text);
@@ -57,13 +57,13 @@ public class ServerCommunication : MonoBehaviour {
 		}
 	}
 
-	public bool TryGetServerMessage(out ServerMessage serverMessage) {
+	public bool TryGetServerGameStateMessage(out ServerMessage serverMessage) {
 		return receivedMessageQueue.TryDequeue (out serverMessage);
 	}
 
-	public void SendClientMessage(ClientMessage clientMessage) {
+	public void SendClientGameStateMessage(ClientMessage clientMessage) {
 		byte[] data = Encoding.UTF8.GetBytes(clientMessage.text);
-		client.Send(data, data.Length, endpoint);
+		udpClient.Send(data, data.Length, endpoint);
 	}
 
 	public static ServerCommunication GetRoot() {

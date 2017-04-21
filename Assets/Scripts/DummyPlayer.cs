@@ -38,7 +38,7 @@ public class DummyPlayer : MonoBehaviour {
 
 			if (serverMessage.Contains ("ServerToClientHelloMessage")) {
 				Debug.Log("Setting ID and position");
-				ServerHelloMessage message = JsonUtility.FromJson<ServerHelloMessage> (serverMessage);
+				ServerToClientHelloMessage message = JsonUtility.FromJson<ServerToClientHelloMessage> (serverMessage);
 				this.id = message.id;
 				this.transform.position = message.initialPosition.ToVector3 ();
 			}

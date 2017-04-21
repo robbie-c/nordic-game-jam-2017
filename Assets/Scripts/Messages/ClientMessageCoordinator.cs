@@ -9,9 +9,9 @@ namespace AssemblyCSharp
 		{
 		}
 
-		public static string createPlayerPosition(Vector3 position) 
+		public static string createGameStateMessage(Vector3 position, Vector3 forward) 
 		{
-			PlayerPosition playerPosObj = new PlayerPosition(position);
+			ClientGameStateMessage playerPosObj = new ClientGameStateMessage(position, forward);
 			return JsonUtility.ToJson(playerPosObj);
 		}
 	}

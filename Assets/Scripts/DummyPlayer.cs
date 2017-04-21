@@ -18,7 +18,7 @@ public class DummyPlayer : MonoBehaviour {
 		}
 
 		if (Input.GetKeyDown (KeyCode.UpArrow)) {
-			string text = ClientMessageCoordinator.createPlayerPosition (transform.position);
+			string text = ClientMessageCoordinator.createGameStateMessage (transform.position, transform.forward);
 			serverCommunication.SendClientGameStateMessage (text);
 		}
 

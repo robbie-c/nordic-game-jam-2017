@@ -6,15 +6,21 @@ namespace AssemblyCSharp
 	[Serializable]
 	public class ClientGameStateMessage
 	{
-		public float x;
-		public float y;
-		public float z;
+		public float posX;
+		public float posY;
+		public float posZ;
+		public float forwardX;
+		public float forwardY;
+		public float forwardZ;
 
-		public ClientGameStateMessage (Vector3 position)
+		public ClientGameStateMessage (Vector3 position, Vector3 forwardDirection)
 		{
-			x = position.x;
-			y = position.y;
-			z = position.z;
+			posX = position.x;
+			posY = position.y;
+			posZ = position.z;
+			forwardX = forwardDirection.x;
+			forwardY = forwardDirection.y;
+			forwardZ = forwardDirection.z;
 		}
 	}
 }

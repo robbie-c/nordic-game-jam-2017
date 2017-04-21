@@ -23,7 +23,7 @@ public class ServerCommunication : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		client = new UdpClient(AssemblyCSharp.Constants.kClientPort);
+		udpClient = new UdpClient(AssemblyCSharp.Constants.kClientPort);
 		var address = IPAddress.Parse(Constants.kServerAddr);
 		endpoint = new IPEndPoint(address, Constants.kServerPort);
 

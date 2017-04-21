@@ -5,7 +5,7 @@ using UnityEngine;
 // udp client: client state
 // Position
 // Forward direction
-// Show exploding animation
+// Show frozen animation
 // TODO Bullet position 
 // TODO Dummy position
 
@@ -18,14 +18,14 @@ namespace AssemblyCSharp
 		public string type;
 		public PlayerPosition playerPosition;
 		public PlayerDirection playerDirection;
-		public Boolean exploded;
+		public Boolean frozen;
 
-		public ClientGameStateMessage (Vector3 position, Vector3 forwardDirection, Boolean exploded)
+		public ClientGameStateMessage (Vector3 position, Vector3 forwardDirection, Boolean frozen)
 		{
 			type = this.GetType().Name;
 			playerPosition = new PlayerPosition (position);
 			playerDirection = new PlayerDirection (forwardDirection);
-			this.exploded = exploded;
+			this.frozen = frozen;
 		}
 	}
 }

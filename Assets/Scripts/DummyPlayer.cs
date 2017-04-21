@@ -6,18 +6,20 @@ using AssemblyCSharp;
 
 public class DummyPlayer : MonoBehaviour {
 
+	public GameObject prefab;
 	private ServerCommunication serverCommunication;
 	private bool frozen;
 	private int id;
+	private Dictionary<int, GameObject> otherPlayers;
 
-	// Use this for initialization
+
 	void Start () {
 		frozen = false;
 		id = -1;
 		serverCommunication = ServerCommunication.GetRoot ();
 	}
 	
-	// Update is called once per frame
+
 	void Update () {
 
 		// Debug code
@@ -70,16 +72,32 @@ public class DummyPlayer : MonoBehaviour {
 			return;
 		}
 
-		// iterate through this and update players on screen
+		ProcessOtherPlayers (message);
+	}
+
+	private void ProcessOtherPlayers(ServerGameStateMessage message) {
 		foreach (ClientGameStateMessage client in message.clients)
 		{
 			Vector3 position = client.playerPosition.ToVector3 ();
 			Vector3 velocity = client.playerVelocity.ToVector3 ();
 			Vector3 direction = client.playerDirection.ToVector3 ();
-			int id = client.id;
+			int otherId = client.id;
 
-			// TODO: do something with this info
+			if (otherId == this.id) {
+				// go to next iteration of loop
+				continue;
+			} 
+
+			GameObject otherPlayer;
+			if (otherPlayers.ContainsKey (id)) {
+				otherPlayer = otherPlayers [id];
+				otherPlayer.transform.position = position;
+			} else {
+				// create new other player and add it to the map
+				otherPlayer = Instantiate(prefab, position, Quaternion.identity);
+			}
+			otherPlayer.GetComponent<Rigidbody>().velocity = velocity;
+			otherPlayer.transform.forward = direction;
 		}
-
 	}
 }

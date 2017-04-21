@@ -11,7 +11,7 @@ public class PlayerMovement : MonoBehaviour {
 	public string keyTurnRight = "d";
 
 	// Player position etc
-	public Transform playerLocation;
+	Rigidbody playerRigidbody;
 	public Vector3 velocity;
 
 	// Player stats
@@ -25,6 +25,10 @@ public class PlayerMovement : MonoBehaviour {
 	bool wantsToTurnRight;
 	bool wantsToAccelerate;
 
+	void Awake () {
+		playerRigidbody = GetComponent<Rigidbody> ();
+	}
+
 	// Use this for initialization
 	void Start () {
 
@@ -34,15 +38,15 @@ public class PlayerMovement : MonoBehaviour {
 	void Update () {
 		ResetControlStates();
 		if (Input.GetKey(keyTurnLeft)) wantsToTurnLeft = true;
-		if (Input.GetKey(keyTurnRight)) {
-			wantsToTurnRight = true;
-		}
+		if (Input.GetKey(keyTurnRight)) wantsToTurnRight = true;
 		if (Input.GetKey(keyAccelerate)) wantsToAccelerate = true;
 	}
 
 	void FixedUpdate () {
+		// Apply drag
 		velocity = UpdateVelocity(Vector3.up * 0.001f);
-		UpdatePosition(velocity);
+		
+		// Apply changes due to player input
 		if (wantsToTurnRight && !wantsToTurnLeft) {
 			Turn(turningSpeed, true);
 		}
@@ -50,8 +54,12 @@ public class PlayerMovement : MonoBehaviour {
 			Turn(turningSpeed, false);
 		}
 		if (wantsToAccelerate) {
-			Accelerate(acceleration);
+			velocity = Accelerate(acceleration);
 		}
+
+		// Move the player collider
+		UpdatePosition(velocity);
+		
 	}
 
 	void ResetControlStates () {
@@ -62,15 +70,19 @@ public class PlayerMovement : MonoBehaviour {
 
 	void Turn(float speed, bool right) {
 		if (right) {
-			playerLocation.Rotate(0.0f, 0.0f, Time.deltaTime * -speed);
+			// playerRigidbody.Rotate(Vector3.right * Time.deltaTime * speed, Space.World);
+			playerRigidbody.transform.Rotate(0.0f, Time.deltaTime * speed, 0.0f, Space.World);
 		} else {
-			playerLocation.Rotate(0.0f, 0.0f, Time.deltaTime * speed);
+			// playerRigidbody.Rotate(Vector3.left * Time.deltaTime * speed, Space.World);
+			playerRigidbody.transform.Rotate(0.0f, Time.deltaTime * -speed, 0.0f, Space.World);
 		}
 		
 	}
 
-	void Accelerate (float acceleration) {
-		Debug.Log (playerLocation.forward);
+	Vector3 Accelerate (float acceleration) {
+		// Debug.Log (playerRigidbody.forward);
+		// playerRigidbody.position += playerRigidbody.forward *= 0.1f;
+		return velocity += playerRigidbody.transform.forward * 0.1f;
 	}
 
 	Vector3 UpdateVelocity (Vector3 acceleration) {
@@ -78,7 +90,7 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	void UpdatePosition (Vector3 velocity) {
-		playerLocation.position += velocity;
+		playerRigidbody.MovePosition (transform.position + velocity);
 	}
 
 }

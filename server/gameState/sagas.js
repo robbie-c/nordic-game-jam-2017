@@ -9,8 +9,6 @@ import {
   udpSend
 } from './calls';
 
-import { kClientPort } from '../constants';
-
 function * wsConnection ({ client }) {
   const player = {
     playerPosition: {

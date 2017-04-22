@@ -117,10 +117,6 @@ function * playerStateUpdate () {
 }
 
 function * adminStartGame () {
-  console.log('#############admin start game#############');
-  console.log('#############admin start game#############');
-  console.log('#############admin start game#############');
-
   const players = yield select(selectPlayers);
   const gameId = yield select(selectGameId);
 
@@ -130,7 +126,6 @@ function * adminStartGame () {
   });
 
   for (const player of players) {
-    console.log(player, player.ws, message);
     if (player.ws) {
       yield call(
         wsSend,

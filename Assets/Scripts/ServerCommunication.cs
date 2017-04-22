@@ -23,16 +23,30 @@ public class ServerCommunication : MonoBehaviour {
 	ConcurrentQueue<string> receivedUdpMessageQueue = new ConcurrentQueue<string>();
 	ConcurrentQueue<string> receivedWebSocketMessageQueue = new ConcurrentQueue<string>();
 
+	static IPAddress IpV4ForHostname(string hostname) {
+		IPHostEntry hostEntry;
+		hostEntry = Dns.GetHostEntry(Constants.kServerHostname);
+
+		foreach (var ip in hostEntry.AddressList) {
+			if (ip.AddressFamily == AddressFamily.InterNetwork) {
+				return ip;
+			}
+		}
+
+		return null;
+	}
+
 	IEnumerator Start () {
-		udpClient = new UdpClient(AssemblyCSharp.Constants.kClientPort);
-		var address = IPAddress.Parse(Constants.kServerAddr);
-		udpEndpoint = new IPEndPoint(address, Constants.kServerPort);
+		udpClient = new UdpClient(Constants.kClientPort);
+
+		var serverIpAddr = IpV4ForHostname (Constants.kServerHostname);
+		udpEndpoint = new IPEndPoint (serverIpAddr, Constants.kServerPort);
 
 		receiveThread = new Thread(new ThreadStart(BackgroundReceiveData));
 		receiveThread.IsBackground = true;
 		receiveThread.Start();
 
-		var builder = new UriBuilder("ws", Constants.kServerAddr, Constants.kServerPort);
+		var builder = new UriBuilder("ws", Constants.kServerHostname, Constants.kServerPort);
 		var uri = builder.Uri;
 		Debug.Log (uri);
 		webSocket = new WebSocket(uri);
@@ -66,7 +80,8 @@ public class ServerCommunication : MonoBehaviour {
 		{
 			try
 			{
-				byte[] data = udpClient.Receive(ref udpEndpoint);
+				IPEndPoint senderEndpoint = new IPEndPoint(IPAddress.Any, 0);
+				byte[] data = udpClient.Receive(ref senderEndpoint);
 				string text = Encoding.UTF8.GetString(data);
 
 				var serverMessage = text;

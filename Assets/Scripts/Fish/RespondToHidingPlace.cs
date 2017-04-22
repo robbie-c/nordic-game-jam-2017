@@ -17,6 +17,7 @@ public class RespondToHidingPlace : MonoBehaviour {
 	Quaternion currentRotation;
 	Vector3 hidingPlaceLookDirection = Vector3.up;
 	Quaternion hidingPlaceLookRotation;
+	Camera cam;
 
 	public void EnterHiding (Vector3 middle) {
 		Debug.Log("called EnterHiding at position: " + middle);
@@ -30,6 +31,7 @@ public class RespondToHidingPlace : MonoBehaviour {
 	void Start () {
 		playerRigidbody = GetComponent<Rigidbody> ();
 		hidingPlaceLookRotation = Quaternion.LookRotation(hidingPlaceLookDirection);
+		Camera cam = GameObject.Find("myObject").GetComponent<Camera>();
 	}
 
 	void FixedUpdate () {
@@ -38,7 +40,10 @@ public class RespondToHidingPlace : MonoBehaviour {
 			MoveTowardsMiddle(middleOfHiding, closeEnoughToMiddle);	
 			
 		}
-		if (isInHiding) RotateToFaceUp();
+		if (isInHiding) {
+			RotateToFaceUp();
+			MovePlayerCamera(middleOfHiding + Vector3.up * 10f, Vector3.down);
+		}
 	}
 
 	void MoveTowardsMiddle (Vector3 middle, float threshold) {
@@ -52,14 +57,19 @@ public class RespondToHidingPlace : MonoBehaviour {
 		// transform.rotation = Quaternion.Slerp(currentRotation, hidingPlaceLookRotation, Time.time * lookRotationSpeed);
 
         float step = lookRotationSpeed * Time.deltaTime;
-        Vector3 newDir = Vector3.RotateTowards(transform.forward, Vector3.up, step, 0.0F);
+        Vector3 newDir = Vector3.RotateTowards(transform.forward, Vector3.up, step, 0.0f);
         Debug.DrawRay(transform.position, newDir, Color.red);
         transform.rotation = Quaternion.LookRotation(newDir);
 
 	}
 
-	void MovePlayerCamera () {
+	void MovePlayerCamera (Vector3 position, Vector3 direction) {
+		// Move camera
 
+		// Rotate camera 
+		float step = lookRotationSpeed * Time.deltaTime;
+		Vector3 newDir = Vector3.RotateTowards(transform.forward, direction, step, 0.0f);
+		transform.rotation = Quaternion.LookRotation(newDir);
 	}
 
 }

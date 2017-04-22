@@ -1,5 +1,10 @@
 import dgram from 'dgram';
-import {kServerAddr, kServerPort, kClientTestPort} from '../../server/constants';
+import {
+  kServerAddr,
+  kServerPort,
+  kClientTestPort,
+  kGameStateUpdateTickMs
+} from '../../server/constants';
 const WebSocket = require('ws');
 
 const ws = new WebSocket('ws://' + kServerAddr + ':' + kServerPort, {
@@ -61,6 +66,6 @@ async function startSendingUdp () {
     console.log('Send', message);
     udpSocket.send(message, 0, message.length, kServerPort, kServerAddr);
 
-    await delay(500);
+    await delay(kGameStateUpdateTickMs);
   }
 }

@@ -12,38 +12,40 @@ public class DummyPlayer : MonoBehaviour {
 	private int id;
 	private Dictionary<int, GameObject> otherPlayers;
 
-
 	void Start () {
 		frozen = false;
 		id = -1;
 		otherPlayers = new Dictionary<int, GameObject> ();
 		serverCommunication = ServerCommunication.GetRoot ();
+
+		StartCoroutine("BackgroundSendGameStateToServerTask");
 	}
 	
 
 	void Update () {
-
-		// Debug code
-		if (Input.GetKeyDown (KeyCode.UpArrow)) {
-			SendGameStateMessage ();
-		}
-
 		QueryUDPConnections ();
+
 		QueryWebSocketConnections ();
+	}
+
+	IEnumerator BackgroundSendGameStateToServerTask() {
+		for(;;) {
+			SendGameStateMessage ();
+			yield return new WaitForSeconds(Constants.kGameStateUpdateTickMs / 1000.0f);
+		}
 	}
 
 	private void QueryWebSocketConnections() {
 		string serverMessage;
-		if (serverCommunication.TryGetServerWebSocketMessage(out serverMessage)) {
-			Debug.Log("Server sent WS : " + serverMessage);
+		if (serverCommunication.TryGetServerWebSocketMessage (out serverMessage)) {
+			Debug.Log ("Server sent WS : " + serverMessage);
 
 			if (serverMessage.Contains ("ServerToClientHelloMessage")) {
-				Debug.Log("Setting ID and position");
+				Debug.Log ("Setting ID and position");
 				ServerToClientHelloMessage message = JsonUtility.FromJson<ServerToClientHelloMessage> (serverMessage);
 				this.id = message.id;
 				this.transform.position = message.initialPosition.ToVector3 ();
 			}
-
 		}
 	}
 
@@ -69,7 +71,7 @@ public class DummyPlayer : MonoBehaviour {
 	private void QueryUDPConnections()
 	{
 		ServerGameStateMessage message = serverCommunication.CheckForOtherClientGameStates ();
-		Debug.Log (message);
+		//Debug.Log (message);
 		if (message == null) {
 			return;
 		}
@@ -78,7 +80,7 @@ public class DummyPlayer : MonoBehaviour {
 	}
 
 	private void ProcessOtherPlayers(ServerGameStateMessage message) {
-		Debug.Log ("Processing other players, message: " + message);
+//		Debug.Log ("Processing other players, message: " + message);
 		foreach (ClientGameStateMessage client in message.clients)
 		{
 			Vector3 position = client.playerPosition.ToVector3 ();
@@ -93,14 +95,17 @@ public class DummyPlayer : MonoBehaviour {
 
 			GameObject otherPlayer;
 			if (otherPlayers.ContainsKey (id)) {
+//				Debug.Log ("Found player with id " + id.ToString());
 				otherPlayer = otherPlayers [id];
 				otherPlayer.transform.position = position;
 			} else {
-				// create new other player and add it to the map
+//				Debug.Log ("Creating new player with id: " + id.ToString());
 				otherPlayer = Instantiate(prefab, position, Quaternion.identity);
+				otherPlayers.Add (id, otherPlayer);
 			}
 			otherPlayer.GetComponent<Rigidbody>().velocity = velocity;
-			otherPlayer.transform.forward = direction;
+			// TODO: this is currently spamming the console with "Look rotation viewing vector is zero"
+			//otherPlayer.transform.forward = direction;
 		}
 	}
 }

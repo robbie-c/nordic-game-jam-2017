@@ -67,12 +67,7 @@ public class PlayerMovement : MonoBehaviour {
 		// for Debug purposes
 		// isMobile = true;
 
-		if (isMobile) {
-			Debug.Log ("is mobile");
-			Button rightBtn = GameObject.Find("Canvas/RightButton").GetComponent<Button>();
-			Button leftBtn = GameObject.Find("Canvas/LeftButton").GetComponent<Button>();
-			Button upBtn = GameObject.Find("Canvas/UpButton").GetComponent<Button>();
-		} else {
+		if (!isMobile) {
 			Debug.Log ("is not mobile");
 			Canvas canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
 			canvas.enabled = false;

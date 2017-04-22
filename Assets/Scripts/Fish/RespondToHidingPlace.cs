@@ -16,10 +16,12 @@ public class RespondToHidingPlace : MonoBehaviour {
 	public float hidingCameraDuration = 16f;
 
 	private float startTime;
-	Vector3 hidingPlaceLookDirection = Vector3.up;
-	Quaternion hidingPlaceLookRotation;
-	Camera cam;
+	private Vector3 hidingPlaceLookDirection = Vector3.up;
+	private Quaternion hidingPlaceLookRotation;
+	private Vector3 entryPoint; // The place where the player first enters the hiding are is used as the reference for moving the camera to prevent it from shaking with the player
+	private Camera cam;
 	private PlayerMovement playerMovementScript;
+
 
 	private DummyPlayer dummyPlayer;
 
@@ -32,6 +34,9 @@ public class RespondToHidingPlace : MonoBehaviour {
 		middleOfHiding = middle;
 		startTime = Time.time;
 		isInHiding = true;
+		entryPoint = transform.position;
+		if (playerMovementScript != null) cam.transform.parent = null; // Detach camera from player
+
 	}
 
 	void Start () {
@@ -78,7 +83,7 @@ public class RespondToHidingPlace : MonoBehaviour {
 
 		// Move camera
 		float fracComplete = (Time.time - startTime) / hidingCameraDuration;
-		cam.transform.position = Vector3.Slerp(transform.position, position, fracComplete);
+		cam.transform.position = Vector3.Slerp(entryPoint, position, fracComplete);
 
 
 		// Rotate camera 

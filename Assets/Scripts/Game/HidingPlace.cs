@@ -4,13 +4,16 @@ using UnityEngine;
 
 public class HidingPlace : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-		
+
+	void OnTriggerEnter (Collider other) {
+
+		GameObject otherObject = other.gameObject;
+		RespondToHidingPlace actionScript = otherObject.GetComponent<RespondToHidingPlace>();
+		 
+		// actionScript.isInHiding = true;
+		actionScript.EnterHiding();
+
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
+
 }

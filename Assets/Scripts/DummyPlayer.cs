@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using AssemblyCSharp;
+using UnityEngine.UI;
 
 
 public class DummyPlayer : MonoBehaviour {
@@ -11,20 +12,21 @@ public class DummyPlayer : MonoBehaviour {
 	public bool frozen;
 	private int id;
 	private Dictionary<int, GameObject> otherPlayers;
+	private bool countingDown = false;
+	private Text countdown;
 
 	void Start () {
 		frozen = false;
 		id = -1;
 		otherPlayers = new Dictionary<int, GameObject> ();
 		serverCommunication = ServerCommunication.GetRoot ();
-
+		countdown = GameObject.FindGameObjectWithTag ("countdown").GetComponent<Text> ();
 		StartCoroutine("BackgroundSendGameStateToServerTask");
 	}
 	
 
 	void Update () {
 		QueryUDPConnections ();
-
 		QueryWebSocketConnections ();
 	}
 
@@ -45,6 +47,11 @@ public class DummyPlayer : MonoBehaviour {
 				ServerToClientHelloMessage message = JsonUtility.FromJson<ServerToClientHelloMessage> (serverMessage);
 				this.id = message.id;
 				this.transform.position = message.initialPosition.ToVector3 ();
+			}
+
+			else if (serverMessage.Contains("ServerToClientStartMessage")) {
+				// no need to parse message for now.
+				// TODO: unfreeze movement, change which UI elements are visible
 			}
 		}
 	}
@@ -86,6 +93,11 @@ public class DummyPlayer : MonoBehaviour {
 			Vector3 position = client.playerPosition.ToVector3 ();
 			Vector3 velocity = client.playerVelocity.ToVector3 ();
 			Vector3 direction = client.playerDirection.ToVector3 ();
+			bool frozen = client.frozen;
+			if (!countingDown && frozen) {
+				countingDown = true;
+				countdown.GetComponent<CountdownTimer>().StartCountdown();
+			}
 			int otherId = client.id;
 
 			if (otherId == this.id) {
@@ -104,8 +116,7 @@ public class DummyPlayer : MonoBehaviour {
 				otherPlayers.Add (id, otherPlayer);
 			}
 			otherPlayer.GetComponent<Rigidbody>().velocity = velocity;
-			// TODO: this is currently spamming the console with "Look rotation viewing vector is zero"
-			//otherPlayer.transform.forward = direction;
+			otherPlayer.transform.forward = direction;
 		}
 	}
 }

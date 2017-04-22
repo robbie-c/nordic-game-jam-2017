@@ -6,3 +6,7 @@ export function selectUdpServer (state) {
 export function selectPlayers (state) {
   return state.players;
 }
+
+export function selectGameId (state) {
+  return state.gameId;
+}

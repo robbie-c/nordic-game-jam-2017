@@ -1,9 +1,11 @@
 import createTcpServer from './tcp';
 import createUdpServer from './udp';
+import createAdminServer from './admin';
 import store from './gameState';
 import * as actions from './gameState/actions';
 
 const dispatch = store.dispatch;
+const subscribe = store.subscribe;
 
 function onWsConnection (client) {
   dispatch({
@@ -52,6 +54,14 @@ function onUdpError (error) {
   console.error(error);
 }
 
+function onAdminStartGamePressed () {
+  console.log('admin start game');
+  dispatch({
+    type: actions.ADMIN_START_GAME
+  });
+}
+
 createTcpServer(onWsConnection, onWsMessage, onWsError, onWsDisconnect);
 createUdpServer(onUdpCreate, onUdpMessage, onUdpError);
+createAdminServer(store.subscribe, store.getState, onAdminStartGamePressed);
 console.log('Created server');

@@ -19,10 +19,12 @@ namespace AssemblyCSharp
 		public Vector3Serialisable playerDirection;
 		public Vector3Serialisable playerVelocity;
 		public Boolean frozen;
+		public int gameId;
 
-		public ClientGameStateMessage (int id, Vector3 position, Vector3 forwardDirection, Vector3 velocity, Boolean frozen)
+		public ClientGameStateMessage (int id, Vector3 position, Vector3 forwardDirection, Vector3 velocity, Boolean frozen, int gameId)
 		{
 			this.id = id;
+			this.gameId = gameId;
 			type = this.GetType().Name;
 			playerPosition = new Vector3Serialisable (position);
 			playerDirection = new Vector3Serialisable (forwardDirection);

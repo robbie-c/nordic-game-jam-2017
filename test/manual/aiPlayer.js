@@ -19,6 +19,7 @@ let playerId = -1;
 let position;
 let direction;
 let velocity;
+let gameId;
 
 ws.on('message', (data) => {
   const message = JSON.parse(data);
@@ -29,6 +30,8 @@ ws.on('message', (data) => {
       position = message.playerPosition;
       direction = message.playerDirection;
       velocity = message.playerVelocity;
+      gameId = message.gameId;
+      console.log('starting gameId is ', gameId);
       startSendingUdp();
       break;
     default:
@@ -57,6 +60,7 @@ async function startSendingUdp () {
     const message = JSON.stringify({
       type: 'ClientGameStateMessage',
       id: playerId,
+      gameId,
       playerPosition: position,
       playerDirection: direction,
       playerVelocity: velocity,

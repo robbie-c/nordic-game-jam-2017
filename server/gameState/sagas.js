@@ -88,11 +88,16 @@ function * handleMessage (playerId, message) {
 
 function * handleClientGameStateMessage (playerId, message) {
   console.log('handle client game state message ' + playerId);
-  yield put({
-    type: actions.PLAYER_STATE_UPDATE,
-    playerId,
-    message
-  });
+  const gameId = yield select(selectGameId);
+  if (gameId === message.gameId) {
+    yield put({
+      type: actions.PLAYER_STATE_UPDATE,
+      playerId,
+      message
+    });
+  } else {
+    console.error('wrong game id! got ' + message.gameId + ' expected ' + gameId);
+  }
 }
 
 function * playerStateUpdate () {

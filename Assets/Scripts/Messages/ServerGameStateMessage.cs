@@ -9,6 +9,7 @@ namespace AssemblyCSharp
 	{
 		public List<ClientGameStateMessage> clients;
 		public string type;
+		public int gameId;
 	}
 }
 

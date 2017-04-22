@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 // Keeps track of player velocity, position and state
 public class PlayerMovement : MonoBehaviour {
@@ -44,26 +45,44 @@ public class PlayerMovement : MonoBehaviour {
 	// bool isWiggling = false;
 	// bool turnButtonIsPressed = false;
 
+	float startTouchPosition;
+	float endTouchPosition;
+
+	public Button yourButton;
+
 	void Awake () {
 		playerRigidbody = GetComponent<Rigidbody> ();
 		turningSpeed = normalTurningSpeed;
 	}
 
 	// Use this for initialization
-	void Start () {
+	void Start () { 
 		timeAfterTurnButtonUp = 1f;
 		timeAfterTurnButtonDown = 0f;
 		velocity = Vector3.zero;
 		timeSinceLastWiggle = 2f * wiggleDuration; // so that a wiggle does not happen on spawn
+
+		bool isMobile = Application.platform == RuntimePlatform.Android;
+
+		// for Debug purposes
+		// isMobile = true;
+
+		if (isMobile) {
+			Debug.Log ("is mobile");
+			Button rightBtn = GameObject.Find("Canvas/RightButton").GetComponent<Button>();
+			Button leftBtn = GameObject.Find("Canvas/LeftButton").GetComponent<Button>();
+			Button upBtn = GameObject.Find("Canvas/UpButton").GetComponent<Button>();
+		} else {
+			Debug.Log ("is not mobile");
+			Canvas canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
+			canvas.enabled = false;
+		}
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		ResetControlStates();
-		// Rect to player input
-		if (Input.GetKey(keyTurnLeft)) wantsToTurnLeft = true;
-		if (Input.GetKey(keyTurnRight)) wantsToTurnRight = true;
-		if (Input.GetKey(keyAccelerate)) wantsToAccelerate = true;
+		ReadPlayerKeys ();
+
 		if (Input.GetKey(keyFastTurn)) {
 			turningSpeed = fastTurningSpeed;
 		} else {
@@ -78,7 +97,61 @@ public class PlayerMovement : MonoBehaviour {
 				timeSinceLastWiggle = 0f;
 			}
 		}
-		if (Input.GetKeyUp(keyTurnRight) || Input.GetKeyUp(keyTurnLeft)) timeAfterTurnButtonUp = 0.0f;
+	}
+
+	void ReadPlayerKeys() {
+		if (Input.GetKey(keyTurnLeft)) {
+			OnTouchDownLeft ();
+		} 
+		if (Input.GetKeyUp(keyTurnLeft)) {
+			OnTouchUpLeft ();
+		}
+		if (Input.GetKey (keyTurnRight)) {
+			OnTouchDownRight ();
+		} 
+		if (Input.GetKeyUp(keyTurnRight)) {
+			OnTouchUpRight ();
+		}
+		if (Input.GetKey (keyAccelerate)) {
+			OnTouchDownUp ();
+		} 
+		if (Input.GetKeyUp(keyAccelerate)) {
+			OnTouchUpUp ();
+		}
+	}
+
+	public void OnTouchDownRight() {
+		Debug.Log ("turning right");
+		wantsToTurnRight = true;
+	}
+
+	public void OnTouchUpRight() {
+		Debug.Log ("stop turning right");
+		timeAfterTurnButtonUp = 0.0f;
+		wantsToTurnRight = false;
+	}
+
+	public void OnTouchDownLeft() {
+		Debug.Log ("turning left");
+		wantsToTurnLeft = true;
+	}
+
+	public void OnTouchUpLeft() {
+		Debug.Log ("stop turning left");
+		timeAfterTurnButtonUp = 0.0f;
+		wantsToTurnLeft = false;
+	}
+
+	public void OnTouchDownUp() {
+		Debug.Log ("turning up");
+		timeAfterTurnButtonDown = 0.0f;
+		wantsToAccelerate = true;
+	}
+
+	public void OnTouchUpUp() {
+		Debug.Log ("stop turning up");
+		timeAfterTurnButtonUp = 0.0f;
+		wantsToAccelerate = false;
 	}
 
 	void FixedUpdate () {
@@ -110,16 +183,9 @@ public class PlayerMovement : MonoBehaviour {
 			// isWiggling = false; 
 		}
 
-
 		// Move the player collider
 		UpdatePosition(velocity);
 		
-	}
-
-	void ResetControlStates () {
-		wantsToAccelerate = false;
-		wantsToTurnRight = false;
-		wantsToTurnLeft = false;
 	}
 
 	void Turn(float speed, bool right) {
@@ -171,5 +237,4 @@ public class PlayerMovement : MonoBehaviour {
 //		Debug.Log(velocity.magnitude);
 		playerRigidbody.MovePosition (transform.position + velocity);
 	}
-
 }

@@ -6,7 +6,8 @@ import {
   selectPlayers
 } from './selectors';
 import {
-  udpSend
+  udpSend,
+  wsSend
 } from './calls';
 
 function * wsConnection ({ client }) {
@@ -36,13 +37,10 @@ function * wsConnection ({ client }) {
     player
   });
 
-  function send (message) {
-    client.send(message);
-  }
-
   console.log('sending hello message to client ' + player.id);
   yield call(
-    send,
+    wsSend,
+    client,
     JSON.stringify({
       type: 'ServerToClientHelloMessage',
       id: player.id,

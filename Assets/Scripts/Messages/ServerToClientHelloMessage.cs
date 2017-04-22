@@ -11,6 +11,7 @@ namespace AssemblyCSharp
 		public Vector3Serialisable initialPosition;
 		public Vector3Serialisable initialVelocity;
 		public Vector3Serialisable initialDirection;
+		public int hidingPlace;
 	}
 }
 

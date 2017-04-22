@@ -34,6 +34,10 @@ ws.on('message', (data) => {
       console.log('starting gameId is ', gameId);
       startSendingUdp();
       break;
+    case 'ServerToClientStartMessage':
+      gameId = message.gameId;
+      console.log('new gameId is ', gameId);
+      break;
     default:
       console.log('Unexpected message type: ' + message.type);
   }

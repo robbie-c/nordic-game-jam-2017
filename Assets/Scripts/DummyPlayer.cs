@@ -28,6 +28,7 @@ public class DummyPlayer : MonoBehaviour {
 	void Start () {
 		frozen = false;
 		id = -1;
+		gameId = -1;
 		otherPlayers = new Dictionary<int, GameObject> ();
 		serverCommunication = ServerCommunication.GetRoot ();
 		countdown = GameObject.FindGameObjectWithTag ("countdown").GetComponent<Text> ();
@@ -107,7 +108,7 @@ public class DummyPlayer : MonoBehaviour {
 
 	private void SendGameStateMessage() 
 	{
-		if (id == -1) {
+		if (id == -1 || gameId == -1) {
 			Debug.Log ("ID not set yet!!");
 			return;
 		}

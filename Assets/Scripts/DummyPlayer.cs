@@ -11,6 +11,7 @@ public class DummyPlayer : MonoBehaviour {
 	private ServerCommunication serverCommunication;
 	public bool frozen;
 	private int id;
+	private int gameId;
 	private Dictionary<int, GameObject> otherPlayers;
 	private bool countingDown = false;
 	private Text countdown;
@@ -79,6 +80,7 @@ public class DummyPlayer : MonoBehaviour {
 				Debug.Log ("Setting ID and position");
 				ServerToClientHelloMessage message = JsonUtility.FromJson<ServerToClientHelloMessage> (serverMessage);
 				this.id = message.id;
+				this.gameId = message.gameId;
 				this.transform.position = message.initialPosition.ToVector3 ();
 				connectingScreen.enabled = false;
 				waitingForPlayersScreen.enabled = true;
@@ -86,6 +88,8 @@ public class DummyPlayer : MonoBehaviour {
 			}
 
 			else if (serverMessage.Contains("ServerToClientStartMessage")) {
+				ServerToClientStartMessage message = JsonUtility.FromJson<ServerToClientStartMessage> (serverMessage);
+				this.gameId = message.gameId;
 				if (finalCountingDownCoroutine != null) {
 					StopCoroutine (finalCountingDownCoroutine);
 				}
@@ -114,7 +118,8 @@ public class DummyPlayer : MonoBehaviour {
 				transform.position, 
 				transform.forward, 
 				GetComponent<Rigidbody>().velocity, 
-				frozen
+				frozen,
+				gameId
 			)
 		);
 		serverCommunication.SendClientUdpMessage (text);
@@ -128,7 +133,9 @@ public class DummyPlayer : MonoBehaviour {
 			return;
 		}
 
-		ProcessOtherPlayers (message);
+		if (message.gameId == gameId) {
+			ProcessOtherPlayers (message);
+		}
 	}
 
 	private void ProcessOtherPlayers(ServerGameStateMessage message) {

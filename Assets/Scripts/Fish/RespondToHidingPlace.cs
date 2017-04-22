@@ -12,24 +12,31 @@ public class RespondToHidingPlace : MonoBehaviour {
 	public bool isInHiding = false;
 	public Vector3 middleOfHiding;
 	public float closeEnoughToMiddle = 0.1f;
-	public float timerMoveToMiddle = 3f; // How long the fish will attemt to move to the middle before giving up
+	// public float timerMoveToMiddle = 3f; // How long the fish will attemt to move to the middle before giving up
 	public float hidingCameraDuration = 16f;
 
 	private float startTime;
-	Vector3 hidingPlaceLookDirection = Vector3.up;
-	Quaternion hidingPlaceLookRotation;
-	Camera cam;
+	private Vector3 hidingPlaceLookDirection = Vector3.up;
+	private Quaternion hidingPlaceLookRotation;
+	private Vector3 entryPoint; // The place where the player first enters the hiding are is used as the reference for moving the camera to prevent it from shaking with the player
+	private Camera cam;
+	private PlayerMovement playerMovementScript;
+
 
 	private DummyPlayer dummyPlayer;
 
 	public void EnterHiding (Vector3 middle) {
-		Debug.Log("called EnterHiding at position: " + middle);
-		GetComponent<PlayerMovement>().enabled = false; // Take control away from the player
+		Debug.Log(this + " called EnterHiding at position: " + middle);
+		playerMovementScript = GetComponent<PlayerMovement>();
+		if (playerMovementScript != null) playerMovementScript.enabled = false; // Take control away from the player
 		dummyPlayer.frozen = true;
 		// Push the fish towards the middle of the hiding place
 		middleOfHiding = middle;
 		startTime = Time.time;
 		isInHiding = true;
+		entryPoint = transform.position;
+		if (playerMovementScript != null) cam.transform.parent = null; // Detach camera from player
+
 	}
 
 	void Start () {
@@ -43,14 +50,15 @@ public class RespondToHidingPlace : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
-		if (isInHiding && timerMoveToMiddle > 0f) {
-			timerMoveToMiddle -= Time.deltaTime;
+		// if (isInHiding && timerMoveToMiddle > 0f) {
+		if (isInHiding) {
+			// timerMoveToMiddle -= Time.deltaTime;
 			MoveTowardsMiddle(middleOfHiding, closeEnoughToMiddle);	
 			
 		}
 		if (isInHiding) {
 			RotateToFaceUp();
-			MovePlayerCamera(middleOfHiding + Vector3.up * 10f, Vector3.down);
+			if (playerMovementScript != null) MovePlayerCamera(middleOfHiding + Vector3.up * 10f, Vector3.down);
 		}
 	}
 
@@ -58,7 +66,7 @@ public class RespondToHidingPlace : MonoBehaviour {
 		float distanceToMiddle = (middle - transform.position).magnitude;
 		if (distanceToMiddle > threshold) {
 			playerRigidbody.velocity = Vector3.zero;
-			playerRigidbody.isKinematic = true;
+			playerRigidbody.isKinematic = false;
 			playerRigidbody.MovePosition (transform.position + hidingSpeed * (middle - transform.position).normalized);
 		}
 	}
@@ -74,18 +82,15 @@ public class RespondToHidingPlace : MonoBehaviour {
 	void MovePlayerCamera (Vector3 position, Vector3 direction) {
 
 		// Move camera
-		// Vector3 riseRelCenter = cam.transform.position - middleOfHiding;
-		// Vector3 setRelCenter = sunset.position - center;
 		float fracComplete = (Time.time - startTime) / hidingCameraDuration;
-		cam.transform.position = Vector3.Slerp(transform.position, position, fracComplete);
+		cam.transform.position = Vector3.Slerp(entryPoint, position, fracComplete);
 
 
 		// Rotate camera 
 		float step = lookRotationSpeed * Time.deltaTime;
 		Vector3 newDir = Vector3.RotateTowards(cam.transform.forward, direction, step, 0.0f);
 		cam.transform.rotation = Quaternion.LookRotation(newDir);
-		// cam.transform.rotation  = Quaternion.Slerp(from.rotation, Quaternion.LookRotation(direction), Time.time * speed);
-		 // transform.rotation = Quaternion.Slerp(from.rotation, to.rotation, Time.time * speed);
+
 	}
 
 }

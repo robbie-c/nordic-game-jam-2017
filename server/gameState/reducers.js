@@ -8,6 +8,8 @@ import {
   UDP_MESSAGE,
   ADMIN_START_GAME,
   FIRST_PLAYER_HIDDEN,
+  LAST_PLAYER_HIDDEN,
+  START_GAME
 } from './actions';
 
 function udpServerReducer (state = null, action = {}) {
@@ -65,7 +67,7 @@ function playerReducer (state = [], action = {}) {
   }
 }
 
-function gameIdReducer(state = 0, action = {}) {
+function gameIdReducer (state = 0, action = {}) {
   switch (action.type) {
     case ADMIN_START_GAME: {
       if (state < Number.MAX_SAFE_INTEGER) {
@@ -81,10 +83,23 @@ function gameIdReducer(state = 0, action = {}) {
 
 function anyPlayersHiddenReducer (state = false, action = {}) {
   switch (action.type) {
-    case ADMIN_START_GAME: {
+    case START_GAME: {
       return false;
     }
     case FIRST_PLAYER_HIDDEN: {
+      return true;
+    }
+    default:
+      return state;
+  }
+}
+
+function allPlayersHiddenReducer (state = false, action = {}) {
+  switch (action.type) {
+    case START_GAME: {
+      return false;
+    }
+    case LAST_PLAYER_HIDDEN: {
       return true;
     }
     default:
@@ -97,4 +112,5 @@ export default combineReducers({
   udpServer: udpServerReducer,
   gameId: gameIdReducer,
   anyPlayersHidden: anyPlayersHiddenReducer,
+  allPlayersHidden: allPlayersHiddenReducer
 });

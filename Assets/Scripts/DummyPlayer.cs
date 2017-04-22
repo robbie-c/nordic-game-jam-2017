@@ -32,6 +32,7 @@ public class DummyPlayer : MonoBehaviour {
 		playerMovement = GetComponent<PlayerMovement> ();
 		waitingForPlayersScreen = GameObject.FindGameObjectWithTag ("WaitingForPlayers").GetComponent<Image> ();
 		finishScreen = GameObject.FindGameObjectWithTag ("finishScreen").GetComponent<Image> ();
+		connectingScreen = GameObject.FindGameObjectWithTag ("Connecting").GetComponent<Image> ();
 		finishScreen.enabled = false;
 		waitingForPlayersScreen.enabled = false;
 		connectingScreen.enabled = true;

@@ -5,7 +5,8 @@ import {
   ADD_PLAYER,
   REMOVE_PLAYER,
   PLAYER_STATE_UPDATE,
-  UDP_MESSAGE
+  UDP_MESSAGE,
+  ADMIN_START_GAME
 } from './actions';
 
 function udpServerReducer (state = null, action = {}) {
@@ -63,7 +64,22 @@ function playerReducer (state = [], action = {}) {
   }
 }
 
+function gameIdReducer(state = 0, action = {}) {
+  switch (action.type) {
+    case ADMIN_START_GAME: {
+      if (state < Number.MAX_SAFE_INTEGER) {
+        return state + 1;
+      } else {
+        return Number.MIN_SAFE_INTEGER;
+      }
+    }
+    default:
+      return state;
+  }
+}
+
 export default combineReducers({
   players: playerReducer,
-  udpServer: udpServerReducer
+  udpServer: udpServerReducer,
+  gameId: gameIdReducer
 });

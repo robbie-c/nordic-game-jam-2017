@@ -5,7 +5,6 @@ import store from './gameState';
 import * as actions from './gameState/actions';
 
 const dispatch = store.dispatch;
-const subscribe = store.subscribe;
 
 function onWsConnection (client) {
   dispatch({

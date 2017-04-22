@@ -17,8 +17,8 @@ public class PlayerMovement : MonoBehaviour {
 
 	// Player stats
 	public float acceleration = 0.01f;
-	public float wiggleAcceleration = 1f;
-	public float dragCoefficient = 0.95f;
+	public float wiggleAcceleration = 0.8f;
+	public float dragCoefficient = 0.96f;
 	// public float minimumSpeed = 0.01f;
 	public float normalTurningSpeed = 500f;
 	public float fastTurningSpeed = 1000f;

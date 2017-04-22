@@ -26,6 +26,13 @@ function onWsError (client, error) {
   console.error(error);
 }
 
+function onWsDisconnect (client) {
+  dispatch({
+    type: actions.WS_DISCONNECT,
+    client
+  });
+}
+
 function onUdpCreate (udpServer) {
   dispatch({
     type: actions.UDP_CREATE,
@@ -45,6 +52,6 @@ function onUdpError (error) {
   console.error(error);
 }
 
-createTcpServer(onWsConnection, onWsMessage, onWsError);
+createTcpServer(onWsConnection, onWsMessage, onWsError, onWsDisconnect);
 createUdpServer(onUdpCreate, onUdpMessage, onUdpError);
 console.log('Created server');

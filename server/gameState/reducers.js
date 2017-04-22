@@ -3,6 +3,7 @@ import { combineReducers } from 'redux';
 import {
   UDP_CREATE,
   ADD_PLAYER,
+  REMOVE_PLAYER,
   PLAYER_STATE_UPDATE,
   UDP_MESSAGE
 } from './actions';
@@ -52,6 +53,10 @@ function playerReducer (state = [], action = {}) {
           return player;
         }
       });
+    }
+    case REMOVE_PLAYER: {
+      const { id } = action;
+      return state.filter((player) => player.id !== id);
     }
     default:
       return state;

@@ -16,12 +16,16 @@ public class PlayerMovement : MonoBehaviour {
 	public Vector3 velocity;
 
 	// Player stats
-	public float acceleration = 0.025f;
+	public float acceleration = 0.01f;
+	public float wiggleAcceleration = 0.01f;
 	public float dragCoefficient = 0.95f;
 	// public float minimumSpeed = 0.01f;
 	public float normalTurningSpeed = 500f;
 	public float fastTurningSpeed = 1000f;
-	public float wiggleOptimumTime = 0.5f;
+	public float wiggleOptimumButtonInterval = 0.25f;
+	public float wiggleDuration = 0.05f;
+
+	float minimumVelocity = 0.00001f;
 	float turningSpeed;
 
 	// Turning sigmoid function parameters
@@ -35,8 +39,9 @@ public class PlayerMovement : MonoBehaviour {
 	bool wantsToAccelerate;
 	float timeAfterTurnButtonDown = 0.0f;
 	float timeAfterTurnButtonUp = 0.0f;
+	float timeSinceLastWiggle = 0.0f;
 	// float wiggleAcceleration = 0.0f;
-	bool isWiggling = false;
+	// bool isWiggling = false;
 	// bool turnButtonIsPressed = false;
 
 	void Awake () {
@@ -49,6 +54,7 @@ public class PlayerMovement : MonoBehaviour {
 		timeAfterTurnButtonUp = 1f;
 		timeAfterTurnButtonDown = 0f;
 		velocity = Vector3.zero;
+		timeSinceLastWiggle = 2f * wiggleDuration; // so that a wiggle does not happen on spawn
 	}
 	
 	// Update is called once per frame
@@ -67,8 +73,9 @@ public class PlayerMovement : MonoBehaviour {
 		if (Input.GetKeyDown(keyTurnRight) || Input.GetKeyDown(keyTurnLeft)) {
 			timeAfterTurnButtonDown = 0.0f;
 			// Determine if a fish body wiggle is implied by the button presses
-			if (timeAfterTurnButtonUp < 2f * wiggleOptimumTime) {
-				isWiggling = true;
+			if (timeAfterTurnButtonUp < 2f * wiggleOptimumButtonInterval) {
+				// isWiggling = true;
+				timeSinceLastWiggle = 0f;
 			}
 		}
 		if (Input.GetKeyUp(keyTurnRight) || Input.GetKeyUp(keyTurnLeft)) timeAfterTurnButtonUp = 0.0f;
@@ -77,6 +84,8 @@ public class PlayerMovement : MonoBehaviour {
 	void FixedUpdate () {
 		// Apply drag
 		velocity = UpdateVelocity(velocity);
+
+		timeSinceLastWiggle += Time.deltaTime;
 		
 		// Update time since turn button was pressed
 		if (timeAfterTurnButtonDown >= 0.0f && (wantsToTurnLeft || wantsToTurnRight)) timeAfterTurnButtonDown += Time.deltaTime;
@@ -94,11 +103,11 @@ public class PlayerMovement : MonoBehaviour {
 		if (wantsToAccelerate) {
 			velocity = Accelerate(velocity, acceleration);
 		}
-		if (isWiggling) {
-			Accelerate(velocity, 
-				CalculateWiggleAcceleration(acceleration, timeAfterTurnButtonUp, wiggleOptimumTime)
+		if (timeSinceLastWiggle <= wiggleDuration) {
+			velocity = Accelerate(velocity, 
+				CalculateWiggleAcceleration(wiggleAcceleration, timeAfterTurnButtonUp, wiggleOptimumButtonInterval)
 			);
-			isWiggling = false; 
+			// isWiggling = false; 
 		}
 
 
@@ -135,17 +144,27 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	float CalculateWiggleAcceleration (float acceleration, float timeSinceUp, float threshold) {
-		return acceleration * (1f - Mathf.Pow((timeSinceUp / threshold) - 1f, 2f) ); // (1-((x/0.5)-1)^2)
+		if (timeSinceUp < threshold) {
+			return acceleration;
+		} else {
+			return acceleration * (1f - Mathf.Pow((timeSinceUp / threshold) - 1f, 2f) ); // (1-((x/0.5)-1)^2)
+		}
 	}
 
 	Vector3 Accelerate (Vector3 velocity, float acceleration) {
 		// Debug.Log (playerRigidbody.forward);
 		// playerRigidbody.position += playerRigidbody.forward *= 0.1f;
+		Debug.Log("Accelerate to : " + (velocity + playerRigidbody.transform.forward * acceleration).magnitude );
 		return velocity + playerRigidbody.transform.forward * acceleration;
 	}
 
 	Vector3 UpdateVelocity (Vector3 velocity) {
-		return velocity * dragCoefficient;
+		if (velocity.magnitude > minimumVelocity) {
+			return velocity * dragCoefficient;	
+		} else {
+			return Vector3.zero;
+		}
+		
 	}
 
 	void UpdatePosition (Vector3 velocity) {

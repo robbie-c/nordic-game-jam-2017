@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using AssemblyCSharp;
+
 public class HidingPlace : MonoBehaviour {
 
 	Vector3 middleOfHiding;
@@ -24,5 +26,14 @@ public class HidingPlace : MonoBehaviour {
 
 	}
 
+	public void SetHidingPlaceIndex(int hidingPlaceIndex) {
+		this.transform.position = Constants.kHidingPlaces [hidingPlaceIndex];
+	}
 
+	public static HidingPlace GetRoot() {
+		var hidingPlaceObj = GameObject.Find("/HidingArea");
+		var hidingPlace = hidingPlaceObj.GetComponent<HidingPlace> ();
+
+		return hidingPlace;
+	}
 }

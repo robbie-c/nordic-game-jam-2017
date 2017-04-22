@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // Keeps track of player velocity, position and state
-public class PlayerMovement : MonoBehaviour {
+public class PlayerMovementForTesting : MonoBehaviour {
 
 	// Controls
 	public string keyAccelerate = "w"; // This will be removed from the relase version
@@ -149,7 +149,7 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	void UpdatePosition (Vector3 velocity) {
-		Debug.Log(velocity.magnitude);
+		// Debug.Log(velocity.magnitude);
 		playerRigidbody.MovePosition (transform.position + velocity);
 	}
 

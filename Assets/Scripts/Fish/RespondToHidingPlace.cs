@@ -11,7 +11,7 @@ public class RespondToHidingPlace : MonoBehaviour {
 	public float lookRotationSpeed = 1.3f;
 	public bool isInHiding = false;
 	public Vector3 middleOfHiding;
-	public float closeEnoughToMiddle = 0.1f;
+	public float closeEnoughToMiddle = 2f;
 	// public float timerMoveToMiddle = 3f; // How long the fish will attemt to move to the middle before giving up
 	public float hidingCameraDuration = 16f;
 
@@ -21,7 +21,9 @@ public class RespondToHidingPlace : MonoBehaviour {
 	private Vector3 entryPoint; // The place where the player first enters the hiding are is used as the reference for moving the camera to prevent it from shaking with the player
 	private Camera cam;
 	private PlayerMovement playerMovementScript;
+
 	private Transform sardineModel;
+
 
 
 	private DummyPlayer dummyPlayer;

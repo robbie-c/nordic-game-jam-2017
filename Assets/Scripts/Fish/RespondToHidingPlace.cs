@@ -12,7 +12,7 @@ public class RespondToHidingPlace : MonoBehaviour {
 	public bool isInHiding = false;
 	public Vector3 middleOfHiding;
 	public float closeEnoughToMiddle = 0.1f;
-	public float timerMoveToMiddle = 3f; // How long the fish will attemt to move to the middle before giving up
+	// public float timerMoveToMiddle = 3f; // How long the fish will attemt to move to the middle before giving up
 	public float hidingCameraDuration = 16f;
 
 	private float startTime;
@@ -45,8 +45,9 @@ public class RespondToHidingPlace : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
-		if (isInHiding && timerMoveToMiddle > 0f) {
-			timerMoveToMiddle -= Time.deltaTime;
+		// if (isInHiding && timerMoveToMiddle > 0f) {
+		if (isInHiding) {
+			// timerMoveToMiddle -= Time.deltaTime;
 			MoveTowardsMiddle(middleOfHiding, closeEnoughToMiddle);	
 			
 		}
@@ -60,7 +61,7 @@ public class RespondToHidingPlace : MonoBehaviour {
 		float distanceToMiddle = (middle - transform.position).magnitude;
 		if (distanceToMiddle > threshold) {
 			playerRigidbody.velocity = Vector3.zero;
-			playerRigidbody.isKinematic = true;
+			playerRigidbody.isKinematic = false;
 			playerRigidbody.MovePosition (transform.position + hidingSpeed * (middle - transform.position).normalized);
 		}
 	}

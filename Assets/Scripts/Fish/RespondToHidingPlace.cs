@@ -20,9 +20,12 @@ public class RespondToHidingPlace : MonoBehaviour {
 	Quaternion hidingPlaceLookRotation;
 	Camera cam;
 
+	private DummyPlayer dummyPlayer;
+
 	public void EnterHiding (Vector3 middle) {
 		Debug.Log("called EnterHiding at position: " + middle);
 		GetComponent<PlayerMovement>().enabled = false; // Take control away from the player
+		dummyPlayer.frozen = true;
 		// Push the fish towards the middle of the hiding place
 		middleOfHiding = middle;
 		startTime = Time.time;
@@ -34,7 +37,7 @@ public class RespondToHidingPlace : MonoBehaviour {
 		hidingPlaceLookRotation = Quaternion.LookRotation(hidingPlaceLookDirection);
 		
 		cam = GameObject.Find("Camera").GetComponent<Camera>();
-
+		dummyPlayer = GetComponent<DummyPlayer> ();
 
 		Debug.Log("cam = " + cam);
 	}

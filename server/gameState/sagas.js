@@ -3,7 +3,8 @@ import { call, put, takeEvery, throttle, select } from 'redux-saga/effects';
 import * as actions from './actions';
 import {
   selectUdpServer,
-  selectPlayers
+  selectPlayers,
+  selectGameId
 } from './selectors';
 import {
   udpSend,
@@ -14,6 +15,8 @@ import {
 } from '../constants';
 
 function * wsConnection ({ client }) {
+  const gameId = yield select(selectGameId);
+
   const player = {
     playerPosition: {
       x: 0,
@@ -47,6 +50,7 @@ function * wsConnection ({ client }) {
     JSON.stringify({
       type: 'ServerToClientHelloMessage',
       id: player.id,
+      gameId,
       playerPosition: player.playerPosition,
       playerDirection: player.playerDirection,
       playerVelocity: player.playerVelocity,
@@ -66,7 +70,7 @@ function * wsMessage ({message}) {
   yield * handleMessage(message.id, message);
 }
 
-function * udpMessage ({message, rinfo}) {
+function * udpMessage ({message}) {
   yield * handleMessage(message.id, message);
 }
 
@@ -89,9 +93,11 @@ function * handleClientGameStateMessage (playerId, message) {
 function * playerStateUpdate () {
   const udpServer = yield select(selectUdpServer);
   const players = yield select(selectPlayers);
+  const gameId = yield select(selectGameId);
 
   const message = JSON.stringify({
     type: 'ServerGameStateMessage',
+    gameId,
     clients: players.map((player) => {
       return {
         id: player.id,
@@ -104,9 +110,33 @@ function * playerStateUpdate () {
   });
 
   for (const player of players) {
-    console.log(player.id, player.udpAddr, player.udpPort);
     if (player.id >= 0 && player.udpAddr && player.udpPort) {
       yield call(udpSend, udpServer, player.udpAddr, player.udpPort, message);
+    }
+  }
+}
+
+function * adminStartGame () {
+  console.log('#############admin start game#############');
+  console.log('#############admin start game#############');
+  console.log('#############admin start game#############');
+
+  const players = yield select(selectPlayers);
+  const gameId = yield select(selectGameId);
+
+  const message = JSON.stringify({
+    type: 'ServerToClientStartMessage',
+    gameId
+  });
+
+  for (const player of players) {
+    console.log(player, player.ws, message);
+    if (player.ws) {
+      yield call(
+        wsSend,
+        player.ws,
+        message
+      );
     }
   }
 }
@@ -116,5 +146,6 @@ export default function * saga () {
   yield takeEvery(actions.WS_MESSAGE, wsMessage);
   yield takeEvery(actions.UDP_MESSAGE, udpMessage);
   yield takeEvery(actions.WS_DISCONNECT, wsDisconnect);
+  yield takeEvery(actions.ADMIN_START_GAME, adminStartGame);
   yield throttle(kGameStateUpdateTickMs, [actions.ADD_PLAYER, actions.PLAYER_STATE_UPDATE], playerStateUpdate);
 }

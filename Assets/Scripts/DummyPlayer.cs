@@ -11,7 +11,7 @@ public class DummyPlayer : MonoBehaviour {
 	private bool frozen;
 	private int id;
 	private Dictionary<int, GameObject> otherPlayers;
-
+	private bool shouldSleep = true;
 
 	void Start () {
 		frozen = false;
@@ -25,6 +25,7 @@ public class DummyPlayer : MonoBehaviour {
 
 	void Update () {
 		QueryUDPConnections ();
+
 		QueryWebSocketConnections ();
 	}
 
@@ -36,17 +37,19 @@ public class DummyPlayer : MonoBehaviour {
 	}
 
 	private void QueryWebSocketConnections() {
+		Debug.Log ("Querying for websockets");
 		string serverMessage;
-		if (serverCommunication.TryGetServerWebSocketMessage(out serverMessage)) {
-			Debug.Log("Server sent WS : " + serverMessage);
+		if (serverCommunication.TryGetServerWebSocketMessage (out serverMessage)) {
+			Debug.Log ("Server sent WS : " + serverMessage);
 
 			if (serverMessage.Contains ("ServerToClientHelloMessage")) {
-				Debug.Log("Setting ID and position");
+				Debug.Log ("Setting ID and position");
 				ServerToClientHelloMessage message = JsonUtility.FromJson<ServerToClientHelloMessage> (serverMessage);
 				this.id = message.id;
 				this.transform.position = message.initialPosition.ToVector3 ();
 			}
-
+		} else {
+			Debug.LogError ("Failed to get message from server");
 		}
 	}
 
@@ -97,11 +100,13 @@ public class DummyPlayer : MonoBehaviour {
 
 			GameObject otherPlayer;
 			if (otherPlayers.ContainsKey (id)) {
+				Debug.Log ("Found player with id " + id.ToString());
 				otherPlayer = otherPlayers [id];
 				otherPlayer.transform.position = position;
 			} else {
-				// create new other player and add it to the map
+				Debug.Log ("Creating new player with id: " + id.ToString());
 				otherPlayer = Instantiate(prefab, position, Quaternion.identity);
+				otherPlayers.Add (id, otherPlayer);
 			}
 			otherPlayer.GetComponent<Rigidbody>().velocity = velocity;
 			otherPlayer.transform.forward = direction;

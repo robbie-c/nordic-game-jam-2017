@@ -1,12 +1,15 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 // Keeps track of player velocity, position and state
-public class PlayerMovement : MonoBehaviour {
+public class CrashDummyPlayer : MonoBehaviour {
 
 	// Controls
+	public bool swimForwardAutomaticaly = true;
+	private float timeSinceAutoWiggle = 10f;
+
 	public string keyAccelerate = "w"; // This will be removed from the relase version
 	public string keyTurnLeft = "a";
 	public string keyTurnRight = "d";
@@ -64,7 +67,7 @@ public class PlayerMovement : MonoBehaviour {
 		bool isMobile = Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer;
 
 		// for Debug purposes
-		 isMobile = true;
+		// isMobile = true;
 
 		if (!isMobile) {
 			Debug.Log ("is not mobile");
@@ -75,7 +78,7 @@ public class PlayerMovement : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		ReadPlayerKeys ();
+		// ReadPlayerKeys (); // In this version the fish is out of the player's control
 
 		if (Input.GetKey(keyFastTurn)) {
 			turningSpeed = fastTurningSpeed;
@@ -154,6 +157,7 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
+
 		// Apply drag
 		playerRigidbody.velocity = UpdateVelocity(playerRigidbody.velocity);
 
@@ -180,6 +184,13 @@ public class PlayerMovement : MonoBehaviour {
 				CalculateWiggleAcceleration(wiggleAcceleration, timeAfterTurnButtonUp, wiggleOptimumButtonInterval)
 			);
 			// isWiggling = false; 
+		}
+
+		// In this version the fish just moves forward by itself
+		if (swimForwardAutomaticaly) {
+			playerRigidbody.velocity = Accelerate(playerRigidbody.velocity, 
+				acceleration
+			);
 		}
 	}
 

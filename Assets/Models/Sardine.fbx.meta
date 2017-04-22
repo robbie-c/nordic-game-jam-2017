@@ -6,13 +6,29 @@ ModelImporter:
     100000: Camera
     100002: Plane.000
     100004: //RootNode
+    100006: Bones
+    100008: Middle
+    100010: RootBone
+    100012: Sardine
+    100014: Tail
+    100016: Tail_end
     400000: Camera
     400002: Plane.000
     400004: //RootNode
+    400006: Bones
+    400008: Middle
+    400010: RootBone
+    400012: Sardine
+    400014: Tail
+    400016: Tail_end
     2300000: Plane.000
     3300000: Plane.000
     4300000: Plane.000
+    4300002: Sardine
+    7400000: Bones|BonesAction
+    7400002: Bones|PointAction
     9500000: //RootNode
+    13700000: Sardine
   materials:
     importMaterials: 1
     materialName: 0

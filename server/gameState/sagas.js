@@ -5,22 +5,26 @@ import {
   selectUdpServer,
   selectPlayers,
   selectGameId,
+  selectHidingPlace,
   selectAnyPlayersHidden,
   selectAllPlayersHidden
 } from './selectors';
 import {
   udpSend,
   wsSend,
-  delaySeconds
+  delaySeconds,
+  getRandomInt
 } from './calls';
 import {
   kGameStateUpdateTickMs,
   kSecondsBetweenFirstHideAndRoundEnd,
-  kSecondsBetweenRoundEndAndNextRoundStart
+  kSecondsBetweenRoundEndAndNextRoundStart,
+  kNumHidingPlaces
 } from '../constants';
 
 function * wsConnection ({ client }) {
   const gameId = yield select(selectGameId);
+  const hidingPlace = yield select(selectHidingPlace);
 
   const player = {
     playerPosition: {
@@ -59,7 +63,8 @@ function * wsConnection ({ client }) {
       playerPosition: player.playerPosition,
       playerDirection: player.playerDirection,
       playerVelocity: player.playerVelocity,
-      frozen: player.frozen
+      frozen: player.frozen,
+      hidingPlace
     })
   );
 }
@@ -157,17 +162,27 @@ function * timeoutGameEnd (action) {
   }
 
   if (action.type !== actions.START_GAME) {
-    yield put({type: actions.START_GAME});
+    yield put({type: actions.REQUEST_START_GAME});
   }
 }
 
 function * startGame () {
   const players = yield select(selectPlayers);
-  const gameId = yield select(selectGameId);
+  const oldGameId = yield select(selectGameId);
+  const hidingPlace = yield call(getRandomInt, 0, kNumHidingPlaces);
+
+  const gameId = oldGameId < Number.MAX_SAFE_INTEGER ? oldGameId + 1 : 0;
+
+  yield put({
+    type: actions.START_GAME,
+    gameId,
+    hidingPlace
+  });
 
   const message = JSON.stringify({
     type: 'ServerToClientStartMessage',
-    gameId
+    gameId,
+    hidingPlace
   });
 
   for (const player of players) {
@@ -182,7 +197,7 @@ function * startGame () {
 }
 
 function * adminStartGame () {
-  yield put({type: actions.START_GAME});
+  yield put({type: actions.REQUEST_START_GAME});
 }
 
 export default function * saga () {
@@ -191,7 +206,7 @@ export default function * saga () {
   yield takeEvery(actions.UDP_MESSAGE, udpMessage);
   yield takeEvery(actions.WS_DISCONNECT, wsDisconnect);
   yield takeEvery(actions.ADMIN_START_GAME, adminStartGame);
-  yield takeEvery(actions.START_GAME, startGame);
+  yield takeEvery(actions.REQUEST_START_GAME, startGame);
   yield takeLatest([actions.START_GAME, actions.FIRST_PLAYER_HIDDEN, actions.LAST_PLAYER_HIDDEN], timeoutGameEnd);
   yield throttle(kGameStateUpdateTickMs, [actions.ADD_PLAYER, actions.PLAYER_STATE_UPDATE], playerStateUpdate);
 }

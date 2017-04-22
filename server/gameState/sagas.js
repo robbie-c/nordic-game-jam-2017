@@ -5,7 +5,8 @@ import {
   selectUdpServer,
   selectPlayers,
   selectGameId,
-  selectAnyPlayersHidden
+  selectAnyPlayersHidden,
+  selectAllPlayersHidden
 } from './selectors';
 import {
   udpSend,
@@ -99,6 +100,7 @@ function * playerStateUpdate () {
   const players = yield select(selectPlayers);
   const gameId = yield select(selectGameId);
   const anyPlayersHidden = yield select(selectAnyPlayersHidden);
+  const allPlayersHidden = yield select(selectAllPlayersHidden);
 
   const message = JSON.stringify({
     type: 'ServerGameStateMessage',
@@ -120,26 +122,32 @@ function * playerStateUpdate () {
     }
   }
 
-  if (!anyPlayersHidden) {
-    const newAnyPlayersHidden = players.some(player => player.frozen);
-    if (newAnyPlayersHidden) {
-      yield put({type: actions.FIRST_PLAYER_HIDDEN});
+  if (players.length > 0) {
+    if (!anyPlayersHidden) {
+      const newAnyPlayersHidden = players.some(player => player.frozen);
+      if (newAnyPlayersHidden) {
+        yield put({type: actions.FIRST_PLAYER_HIDDEN});
+      }
     }
-  } else {
-    const allPlayersHidden = players.every(player => player.frozen);
-    if (allPlayersHidden) {
-      yield put({type: actions.LAST_PLAYER_HIDDEN});
+    if (!allPlayersHidden) {
+      const newAllPlayersHidden = players.every(player => player.frozen);
+      if (newAllPlayersHidden) {
+        yield put({type: actions.LAST_PLAYER_HIDDEN});
+      }
     }
   }
 }
 
 function * timeoutGameEnd (action) {
+  if (action.type !== actions.FIRST_PLAYER_HIDDEN && action.type !== actions.LAST_PLAYER_HIDDEN) {
+    return;
+  }
   switch (action.type) {
     case actions.FIRST_PLAYER_HIDDEN:
-      call(delaySeconds, kSecondsBetweenFirstHideAndRoundEnd + kSecondsBetweenRoundEndAndNextRoundStart);
+      yield call(delaySeconds, kSecondsBetweenFirstHideAndRoundEnd + kSecondsBetweenRoundEndAndNextRoundStart);
       break;
     case actions.LAST_PLAYER_HIDDEN:
-      call(delaySeconds, kSecondsBetweenRoundEndAndNextRoundStart);
+      yield call(delaySeconds, kSecondsBetweenRoundEndAndNextRoundStart);
       break;
   }
 

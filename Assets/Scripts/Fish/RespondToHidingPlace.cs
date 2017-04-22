@@ -44,7 +44,7 @@ public class RespondToHidingPlace : MonoBehaviour {
 		playerRigidbody = GetComponent<Rigidbody> ();
 		hidingPlaceLookRotation = Quaternion.LookRotation(hidingPlaceLookDirection);
 		
-		cam = GameObject.Find("Camera").GetComponent<Camera>();
+		cam = GameObject.Find("/BasicFish/Camera").GetComponent<Camera>();
 		// sardineModel = this.gameObject.transform.GetChild(0);
 		dummyPlayer = GetComponent<DummyPlayer> ();
 

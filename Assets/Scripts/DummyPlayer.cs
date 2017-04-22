@@ -23,10 +23,12 @@ public class DummyPlayer : MonoBehaviour {
 	private Image finishScreen;
 	private Image connectingScreen;
 	private IEnumerator finalCountingDownCoroutine;
+	private IEnumerator startCountingDownCoroutine;
 
 	void Start () {
 		frozen = false;
 		id = -1;
+		gameId = -1;
 		otherPlayers = new Dictionary<int, GameObject> ();
 		serverCommunication = ServerCommunication.GetRoot ();
 		countdown = GameObject.FindGameObjectWithTag ("countdown").GetComponent<Text> ();
@@ -92,7 +94,11 @@ public class DummyPlayer : MonoBehaviour {
 				if (finalCountingDownCoroutine != null) {
 					StopCoroutine (finalCountingDownCoroutine);
 				}
-				StartCoroutine("StartCountdown");
+				if (startCountingDownCoroutine != null) {
+					return;
+				}
+				startCountingDownCoroutine = StartCountdown ();
+				StartCoroutine(startCountingDownCoroutine);
 				connectingScreen.enabled = false;
 				waitingForPlayersScreen.enabled = false;
 				finishScreen.enabled = false;
@@ -102,7 +108,7 @@ public class DummyPlayer : MonoBehaviour {
 
 	private void SendGameStateMessage() 
 	{
-		if (id == -1) {
+		if (id == -1 || gameId == -1) {
 			Debug.Log ("ID not set yet!!");
 			return;
 		}
@@ -171,7 +177,6 @@ public class DummyPlayer : MonoBehaviour {
 	IEnumerator FinalCountdown()
 	{
 		int progress = this.finishSeconds;
-		this.enabled = true;
 
 		while (progress >= 0)
 		{
@@ -180,7 +185,6 @@ public class DummyPlayer : MonoBehaviour {
 			yield return new WaitForSeconds(1);
 
 		}
-		this.enabled = false;
 		yield return true;
 
 		finalCountingDownCoroutine = null;
@@ -190,9 +194,7 @@ public class DummyPlayer : MonoBehaviour {
 
 	IEnumerator StartCountdown()
 	{
-		waitingForPlayersScreen.enabled = true;
 		int progress = this.startSeconds;
-		this.enabled = true;
 
 		while (progress >= 0)
 		{
@@ -201,9 +203,9 @@ public class DummyPlayer : MonoBehaviour {
 			yield return new WaitForSeconds(1);
 
 		}
-		this.enabled = false;
 		yield return true;
 
+		startCountingDownCoroutine = null;
 		StartGame();
 	}
 
@@ -214,7 +216,6 @@ public class DummyPlayer : MonoBehaviour {
 	}
 
 	public void StartGame() {
-		waitingForPlayersScreen.enabled = false;
 		playerMovement.enabled = true;
 	}
 }

@@ -10,3 +10,7 @@ export function selectPlayers (state) {
 export function selectGameId (state) {
   return state.gameId;
 }
+
+export function selectAnyPlayersHidden (state) {
+  return state.anyPlayersHidden;
+}

@@ -5,6 +5,9 @@ export const kClientPort = 41235;
 export const kClientTestPort = 41236;
 export const kServerAdminPort = 41233;
 export const kGameStateUpdateTickMs = 500;
+export const kSecondsBetweenFirstHideAndRoundEnd = 10;
+export const kSecondsBetweenRoundEndAndNextRoundStart = 5;
+export const kNumHidingPlaces = 10;
 
 export default {
   kServerPort,

@@ -14,6 +14,10 @@ public class DummyPlayer : MonoBehaviour {
 	private Dictionary<int, GameObject> otherPlayers;
 	private bool countingDown = false;
 	private Text countdown;
+	private bool startedGame = false;
+	public int startSeconds = 3;
+	public int finishSeconds = 10;
+	private PlayerMovement playerMovement;
 
 	void Start () {
 		frozen = false;
@@ -21,6 +25,10 @@ public class DummyPlayer : MonoBehaviour {
 		otherPlayers = new Dictionary<int, GameObject> ();
 		serverCommunication = ServerCommunication.GetRoot ();
 		countdown = GameObject.FindGameObjectWithTag ("countdown").GetComponent<Text> ();
+		playerMovement = GetComponent<PlayerMovement> ();
+		playerMovement.enabled = false;
+
+		countdown.enabled = false;
 		StartCoroutine("BackgroundSendGameStateToServerTask");
 	}
 	
@@ -50,8 +58,7 @@ public class DummyPlayer : MonoBehaviour {
 			}
 
 			else if (serverMessage.Contains("ServerToClientStartMessage")) {
-				// no need to parse message for now.
-				// TODO: unfreeze movement, change which UI elements are visible
+				StartCoroutine("StartCountdown");
 			}
 		}
 	}
@@ -96,7 +103,7 @@ public class DummyPlayer : MonoBehaviour {
 			bool frozen = client.frozen;
 			if (!countingDown && frozen) {
 				countingDown = true;
-				countdown.GetComponent<CountdownTimer>().StartCountdown();
+				StartCoroutine("FinalCountdown");
 			}
 			int otherId = client.id;
 
@@ -119,4 +126,53 @@ public class DummyPlayer : MonoBehaviour {
 			otherPlayer.transform.forward = direction;
 		}
 	}
+
+	IEnumerator FinalCountdown()
+	{
+		int progress = this.finishSeconds;
+		this.enabled = true;
+
+		while (progress >= 0)
+		{
+			countdown.text = progress.ToString();
+			progress -= 1;
+			yield return new WaitForSeconds(1);
+
+		}
+		this.enabled = false;
+		yield return true;
+
+		FinishGame ();
+	}
+
+	IEnumerator StartCountdown()
+	{
+		int progress = this.startSeconds;
+		this.enabled = true;
+
+		while (progress >= 0)
+		{
+			countdown.text = progress.ToString();
+			progress -= 1;
+			yield return new WaitForSeconds(1);
+
+		}
+		this.enabled = false;
+		yield return true;
+
+		StartGame();
+	}
+
+
+	public void FinishGame() {
+		playerMovement.enabled = false;
+		// show splash screen showing whether you hid in time.
+
+		// wait for UdpSocketConnection (which is done implicitly)
+	}
+
+	public void StartGame() {
+		playerMovement.enabled = true;
+	}
+
 }

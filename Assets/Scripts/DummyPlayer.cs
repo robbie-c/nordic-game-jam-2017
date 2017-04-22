@@ -18,18 +18,21 @@ public class DummyPlayer : MonoBehaviour {
 		id = -1;
 		otherPlayers = new Dictionary<int, GameObject> ();
 		serverCommunication = ServerCommunication.GetRoot ();
+
+		StartCoroutine("BackgroundSendGameStateToServerTask");
 	}
 	
 
 	void Update () {
-
-		// Debug code
-		if (Input.GetKeyDown (KeyCode.UpArrow)) {
-			SendGameStateMessage ();
-		}
-
 		QueryUDPConnections ();
 		QueryWebSocketConnections ();
+	}
+
+	IEnumerator BackgroundSendGameStateToServerTask() {
+		for(;;) {
+			SendGameStateMessage ();
+			yield return new WaitForSeconds(Constants.kGameStateUpdateTickMs / 1000.0f);
+		}
 	}
 
 	private void QueryWebSocketConnections() {
@@ -63,13 +66,14 @@ public class DummyPlayer : MonoBehaviour {
 				frozen
 			)
 		);
+		Debug.Log("sending udp");
 		serverCommunication.SendClientUdpMessage (text);
 	}
 
 	private void QueryUDPConnections()
 	{
 		ServerGameStateMessage message = serverCommunication.CheckForOtherClientGameStates ();
-		Debug.Log (message);
+		//Debug.Log (message);
 		if (message == null) {
 			return;
 		}

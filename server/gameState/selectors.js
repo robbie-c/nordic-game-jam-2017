@@ -14,3 +14,7 @@ export function selectGameId (state) {
 export function selectAnyPlayersHidden (state) {
   return state.anyPlayersHidden;
 }
+
+export function selectAllPlayersHidden (state) {
+  return state.allPlayersHidden;
+}

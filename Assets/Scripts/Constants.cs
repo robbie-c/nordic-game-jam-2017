@@ -7,6 +7,7 @@ namespace AssemblyCSharp
 		public const string kServerAddr = "127.0.0.1";
 		public const int kServerPort = 41234;
 		public const int kClientPort = 41235;
+		public const int kGameStateUpdateTickMs = 500;
 	}
 }
 

@@ -9,6 +9,9 @@ import {
   udpSend,
   wsSend
 } from './calls';
+import {
+  kGameStateUpdateTickMs
+} from '../constants';
 
 function * wsConnection ({ client }) {
   const player = {
@@ -113,5 +116,5 @@ export default function * saga () {
   yield takeEvery(actions.WS_MESSAGE, wsMessage);
   yield takeEvery(actions.UDP_MESSAGE, udpMessage);
   yield takeEvery(actions.WS_DISCONNECT, wsDisconnect);
-  yield throttle(1000, [actions.ADD_PLAYER, actions.PLAYER_STATE_UPDATE], playerStateUpdate);
+  yield throttle(kGameStateUpdateTickMs, [actions.ADD_PLAYER, actions.PLAYER_STATE_UPDATE], playerStateUpdate);
 }

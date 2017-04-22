@@ -6,7 +6,8 @@ import {
   REMOVE_PLAYER,
   PLAYER_STATE_UPDATE,
   UDP_MESSAGE,
-  ADMIN_START_GAME
+  ADMIN_START_GAME,
+  FIRST_PLAYER_HIDDEN,
 } from './actions';
 
 function udpServerReducer (state = null, action = {}) {
@@ -78,8 +79,22 @@ function gameIdReducer(state = 0, action = {}) {
   }
 }
 
+function anyPlayersHiddenReducer (state = false, action = {}) {
+  switch (action.type) {
+    case ADMIN_START_GAME: {
+      return false;
+    }
+    case FIRST_PLAYER_HIDDEN: {
+      return true;
+    }
+    default:
+      return state;
+  }
+}
+
 export default combineReducers({
   players: playerReducer,
   udpServer: udpServerReducer,
-  gameId: gameIdReducer
+  gameId: gameIdReducer,
+  anyPlayersHidden: anyPlayersHiddenReducer,
 });

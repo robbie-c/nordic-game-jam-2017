@@ -64,7 +64,7 @@ public class PlayerMovement : MonoBehaviour {
 		bool isMobile = Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer;
 
 		// for Debug purposes
-		// isMobile = true;
+		 isMobile = true;
 
 		if (!isMobile) {
 			Debug.Log ("is not mobile");

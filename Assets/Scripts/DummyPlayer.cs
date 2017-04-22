@@ -14,10 +14,14 @@ public class DummyPlayer : MonoBehaviour {
 	private Dictionary<int, GameObject> otherPlayers;
 	private bool countingDown = false;
 	private Text countdown;
-	private bool startedGame = false;
+	private bool waitingToStart = true;
 	public int startSeconds = 3;
 	public int finishSeconds = 10;
 	private PlayerMovement playerMovement;
+	private Image waitingForPlayersScreen;
+	private Image finishScreen;
+	private Image connectingScreen;
+	private IEnumerator finalCountingDownCoroutine;
 
 	void Start () {
 		frozen = false;
@@ -26,9 +30,28 @@ public class DummyPlayer : MonoBehaviour {
 		serverCommunication = ServerCommunication.GetRoot ();
 		countdown = GameObject.FindGameObjectWithTag ("countdown").GetComponent<Text> ();
 		playerMovement = GetComponent<PlayerMovement> ();
+		waitingForPlayersScreen = GameObject.FindGameObjectWithTag ("WaitingForPlayers").GetComponent<Image> ();
+		finishScreen = GameObject.FindGameObjectWithTag ("finishScreen").GetComponent<Image> ();
+		finishScreen.enabled = false;
+		waitingForPlayersScreen.enabled = false;
+		connectingScreen.enabled = true;
+
+		// TODO: in real game, this needs to be uncommented
 //		playerMovement.enabled = false;
 
 		countdown.enabled = false;
+
+		bool isMobile = Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer;
+
+		// for Debug purposes
+		isMobile = true;
+
+		if (!isMobile) {
+			Debug.Log ("is not mobile");
+			GameObject.FindGameObjectWithTag("rightButton").GetComponent<Button>().enabled = false;
+			GameObject.FindGameObjectWithTag("leftButton").GetComponent<Button>().enabled = false;
+		}
+
 		StartCoroutine("BackgroundSendGameStateToServerTask");
 	}
 	
@@ -55,10 +78,19 @@ public class DummyPlayer : MonoBehaviour {
 				ServerToClientHelloMessage message = JsonUtility.FromJson<ServerToClientHelloMessage> (serverMessage);
 				this.id = message.id;
 				this.transform.position = message.initialPosition.ToVector3 ();
+				connectingScreen.enabled = false;
+				waitingForPlayersScreen.enabled = true;
+				finishScreen.enabled = false;
 			}
 
 			else if (serverMessage.Contains("ServerToClientStartMessage")) {
+				if (finalCountingDownCoroutine != null) {
+					StopCoroutine (finalCountingDownCoroutine);
+				}
 				StartCoroutine("StartCountdown");
+				connectingScreen.enabled = false;
+				waitingForPlayersScreen.enabled = false;
+				finishScreen.enabled = false;
 			}
 		}
 	}
@@ -103,7 +135,8 @@ public class DummyPlayer : MonoBehaviour {
 			bool frozen = client.frozen;
 			if (!countingDown && frozen) {
 				countingDown = true;
-				StartCoroutine("FinalCountdown");
+				finalCountingDownCoroutine = FinalCountdown ();
+				StartCoroutine(finalCountingDownCoroutine);
 			}
 			int otherId = client.id;
 
@@ -142,11 +175,14 @@ public class DummyPlayer : MonoBehaviour {
 		this.enabled = false;
 		yield return true;
 
+		finalCountingDownCoroutine = null;
+
 		FinishGame ();
 	}
 
 	IEnumerator StartCountdown()
 	{
+		waitingForPlayersScreen.enabled = true;
 		int progress = this.startSeconds;
 		this.enabled = true;
 
@@ -166,13 +202,11 @@ public class DummyPlayer : MonoBehaviour {
 
 	public void FinishGame() {
 		playerMovement.enabled = false;
-		// show splash screen showing whether you hid in time.
-
-		// wait for UdpSocketConnection (which is done implicitly)
+		finishScreen.enabled = true;
 	}
 
 	public void StartGame() {
+		waitingForPlayersScreen.enabled = false;
 		playerMovement.enabled = true;
 	}
-
 }

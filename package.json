@@ -5,6 +5,7 @@
   "main": "server/server.js",
   "scripts": {
     "start": "babel-node server/server.js",
+    "ai": "babel-node test/manual/aiPlayer.js",
     "lint": "eslint --ext .js --ext .jsx server"
   },
   "repository": {

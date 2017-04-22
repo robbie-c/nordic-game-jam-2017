@@ -152,9 +152,6 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	Vector3 Accelerate (Vector3 velocity, float acceleration) {
-		// Debug.Log (playerRigidbody.forward);
-		// playerRigidbody.position += playerRigidbody.forward *= 0.1f;
-		Debug.Log("Accelerate to : " + (velocity + playerRigidbody.transform.forward * acceleration).magnitude );
 		return velocity + playerRigidbody.transform.forward * acceleration;
 	}
 
@@ -168,7 +165,6 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	void UpdatePosition (Vector3 velocity) {
-//		Debug.Log(velocity.magnitude);
 		playerRigidbody.MovePosition (transform.position + velocity);
 	}
 

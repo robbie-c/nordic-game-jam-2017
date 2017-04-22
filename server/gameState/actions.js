@@ -3,6 +3,7 @@ export const WS_MESSAGE = 'WS_MESSAGE';
 export const WS_DISCONNECT = 'WS_DISCONNECT';
 export const UDP_CREATE = 'UDP_CREATE';
 export const UDP_MESSAGE = 'UDP_MESSAGE';
+export const ADMIN_START_GAME = 'ADMIN_START_GAME';
 
 export const ADD_PLAYER = 'ADD_PLAYER';
 export const REMOVE_PLAYER = 'REMOVE_PLAYER';

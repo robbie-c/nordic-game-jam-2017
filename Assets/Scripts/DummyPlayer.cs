@@ -28,6 +28,7 @@ public class DummyPlayer : MonoBehaviour {
 	void Start () {
 		frozen = false;
 		id = -1;
+		gameId = -1;
 		otherPlayers = new Dictionary<int, GameObject> ();
 		serverCommunication = ServerCommunication.GetRoot ();
 		countdown = GameObject.FindGameObjectWithTag ("countdown").GetComponent<Text> ();
@@ -71,6 +72,41 @@ public class DummyPlayer : MonoBehaviour {
 		}
 	}
 
+	private void HandleServerToClientHelloMessage(ServerToClientHelloMessage message) {
+		this.id = message.id;
+		this.gameId = message.gameId;
+		this.transform.position = message.initialPosition.ToVector3 ();
+		connectingScreen.enabled = false;
+		waitingForPlayersScreen.enabled = true;
+		finishScreen.enabled = false;
+
+		var hidingPlace = HidingPlace.GetRoot ();
+		if (hidingPlace) {
+			hidingPlace.SetHidingPlaceIndex (message.hidingPlace);
+		}
+	}
+
+	private void HandleServerToClientStartMessage(ServerToClientStartMessage message) {
+		this.gameId = message.gameId;
+		this.frozen = false;
+		if (finalCountingDownCoroutine != null) {
+			StopCoroutine (finalCountingDownCoroutine);
+		}
+		if (startCountingDownCoroutine != null) {
+			return;
+		}
+		startCountingDownCoroutine = StartCountdown ();
+		StartCoroutine(startCountingDownCoroutine);
+		connectingScreen.enabled = false;
+		waitingForPlayersScreen.enabled = false;
+		finishScreen.enabled = false;
+
+		var hidingPlace = HidingPlace.GetRoot ();
+		if (hidingPlace) {
+			hidingPlace.SetHidingPlaceIndex (message.hidingPlace);
+		}
+	}
+
 	private void QueryWebSocketConnections() {
 		string serverMessage;
 		if (serverCommunication.TryGetServerWebSocketMessage (out serverMessage)) {
@@ -79,35 +115,19 @@ public class DummyPlayer : MonoBehaviour {
 			if (serverMessage.Contains ("ServerToClientHelloMessage")) {
 				Debug.Log ("Setting ID and position");
 				ServerToClientHelloMessage message = JsonUtility.FromJson<ServerToClientHelloMessage> (serverMessage);
-				this.id = message.id;
-				this.gameId = message.gameId;
-				this.transform.position = message.initialPosition.ToVector3 ();
-				connectingScreen.enabled = false;
-				waitingForPlayersScreen.enabled = true;
-				finishScreen.enabled = false;
+				HandleServerToClientHelloMessage (message);
 			}
 
 			else if (serverMessage.Contains("ServerToClientStartMessage")) {
 				ServerToClientStartMessage message = JsonUtility.FromJson<ServerToClientStartMessage> (serverMessage);
-				this.gameId = message.gameId;
-				if (finalCountingDownCoroutine != null) {
-					StopCoroutine (finalCountingDownCoroutine);
-				}
-				if (startCountingDownCoroutine != null) {
-					return;
-				}
-				startCountingDownCoroutine = StartCountdown ();
-				StartCoroutine(startCountingDownCoroutine);
-				connectingScreen.enabled = false;
-				waitingForPlayersScreen.enabled = false;
-				finishScreen.enabled = false;
+				HandleServerToClientStartMessage (message);
 			}
 		}
 	}
 
 	private void SendGameStateMessage() 
 	{
-		if (id == -1) {
+		if (id == -1 || gameId == -1) {
 			Debug.Log ("ID not set yet!!");
 			return;
 		}

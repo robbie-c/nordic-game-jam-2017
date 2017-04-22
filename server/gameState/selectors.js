@@ -11,6 +11,10 @@ export function selectGameId (state) {
   return state.gameId;
 }
 
+export function selectHidingPlace (state) {
+  return state.hidingPlace;
+}
+
 export function selectAnyPlayersHidden (state) {
   return state.anyPlayersHidden;
 }

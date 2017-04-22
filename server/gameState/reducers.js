@@ -69,15 +69,24 @@ function playerReducer (state = [], action = {}) {
 
 function gameIdReducer (state = 0, action = {}) {
   switch (action.type) {
-    case ADMIN_START_GAME: {
-      if (state < Number.MAX_SAFE_INTEGER) {
-        return state + 1;
-      } else {
-        return Number.MIN_SAFE_INTEGER;
-      }
+    case START_GAME: {
+      const { gameId } = action;
+      return gameId;
     }
     default:
       return state;
+  }
+}
+
+function hidingPlaceReducer (state = 0, action = {}) {
+  switch (action.type) {
+    case START_GAME: {
+      const { hidingPlace } = action;
+      return hidingPlace;
+    }
+    default: {
+      return state;
+    }
   }
 }
 
@@ -111,6 +120,7 @@ export default combineReducers({
   players: playerReducer,
   udpServer: udpServerReducer,
   gameId: gameIdReducer,
+  hidingPlace: hidingPlaceReducer,
   anyPlayersHidden: anyPlayersHiddenReducer,
   allPlayersHidden: allPlayersHiddenReducer
 });

@@ -5,13 +5,15 @@ namespace AssemblyCSharp
 	[Serializable]
 	public class ServerToClientStartMessage
 	{
-		public readonly int gameId;
+		public int gameId;
 		public string type;
+		public int hidingPlace;
 
-		public ServerToClientStartMessage (int gameId)
+		public ServerToClientStartMessage (int gameId, int hidingPlace)
 		{
 			this.gameId = gameId;
 			type = this.GetType().Name;
+			this.hidingPlace = hidingPlace;
 		}
 	}
 }

@@ -149,7 +149,7 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	void UpdatePosition (Vector3 velocity) {
-		Debug.Log(velocity.magnitude);
+//		Debug.Log(velocity.magnitude);
 		playerRigidbody.MovePosition (transform.position + velocity);
 	}
 

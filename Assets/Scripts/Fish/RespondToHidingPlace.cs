@@ -21,6 +21,7 @@ public class RespondToHidingPlace : MonoBehaviour {
 	private Vector3 entryPoint; // The place where the player first enters the hiding are is used as the reference for moving the camera to prevent it from shaking with the player
 	private Camera cam;
 	private PlayerMovement playerMovementScript;
+	private Transform sardineModel;
 
 
 	private DummyPlayer dummyPlayer;
@@ -44,6 +45,10 @@ public class RespondToHidingPlace : MonoBehaviour {
 		hidingPlaceLookRotation = Quaternion.LookRotation(hidingPlaceLookDirection);
 		
 		cam = GameObject.Find("Camera").GetComponent<Camera>();
+
+		// sardineModel = this.gameObject.transform.GetChild(0); 
+		Debug.Log("XXX " + this + "sardineModel = " + sardineModel);
+
 		dummyPlayer = GetComponent<DummyPlayer> ();
 
 		Debug.Log("cam = " + cam);

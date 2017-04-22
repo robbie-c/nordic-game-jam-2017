@@ -88,31 +88,22 @@ public class PlayerMovement : MonoBehaviour {
 		} else {
 			turningSpeed = normalTurningSpeed;	
 		}
-		// Reset turn button timers
-		if (Input.GetKeyDown(keyTurnRight) || Input.GetKeyDown(keyTurnLeft)) {
-			timeAfterTurnButtonDown = 0.0f;
-			// Determine if a fish body wiggle is implied by the button presses
-			if (timeAfterTurnButtonUp < 2f * wiggleOptimumButtonInterval) {
-				// isWiggling = true;
-				timeSinceLastWiggle = 0f;
-			}
-		}
 	}
 
 	void ReadPlayerKeys() {
-		if (Input.GetKey(keyTurnLeft)) {
+		if (Input.GetKeyDown(keyTurnLeft)) {
 			OnTouchDownLeft ();
 		} 
 		if (Input.GetKeyUp(keyTurnLeft)) {
 			OnTouchUpLeft ();
 		}
-		if (Input.GetKey (keyTurnRight)) {
+		if (Input.GetKeyDown (keyTurnRight)) {
 			OnTouchDownRight ();
 		} 
 		if (Input.GetKeyUp(keyTurnRight)) {
 			OnTouchUpRight ();
 		}
-		if (Input.GetKey (keyAccelerate)) {
+		if (Input.GetKeyDown (keyAccelerate)) {
 			OnTouchDownUp ();
 		} 
 		if (Input.GetKeyUp(keyAccelerate)) {
@@ -120,9 +111,20 @@ public class PlayerMovement : MonoBehaviour {
 		}
 	}
 
+	void CheckWiggle() {
+		timeAfterTurnButtonDown = 0.0f;
+		// Determine if a fish body wiggle is implied by the button presses
+		if (timeAfterTurnButtonUp < 2f * wiggleOptimumButtonInterval) {
+			// isWiggling = true;
+			timeSinceLastWiggle = 0f;
+		}
+	}
+
 	public void OnTouchDownRight() {
 		Debug.Log ("turning right");
+		timeAfterTurnButtonDown = 0.0f;
 		wantsToTurnRight = true;
+		CheckWiggle ();
 	}
 
 	public void OnTouchUpRight() {
@@ -133,7 +135,9 @@ public class PlayerMovement : MonoBehaviour {
 
 	public void OnTouchDownLeft() {
 		Debug.Log ("turning left");
+		timeAfterTurnButtonDown = 0.0f;
 		wantsToTurnLeft = true;
+		CheckWiggle ();
 	}
 
 	public void OnTouchUpLeft() {
@@ -146,6 +150,7 @@ public class PlayerMovement : MonoBehaviour {
 		Debug.Log ("turning up");
 		timeAfterTurnButtonDown = 0.0f;
 		wantsToAccelerate = true;
+		CheckWiggle ();
 	}
 
 	public void OnTouchUpUp() {

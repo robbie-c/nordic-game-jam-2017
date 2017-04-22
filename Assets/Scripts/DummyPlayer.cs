@@ -177,7 +177,6 @@ public class DummyPlayer : MonoBehaviour {
 	IEnumerator FinalCountdown()
 	{
 		int progress = this.finishSeconds;
-		this.enabled = true;
 
 		while (progress >= 0)
 		{

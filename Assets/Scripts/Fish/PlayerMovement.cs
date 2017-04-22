@@ -184,6 +184,7 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	void Turn(float speed, bool right) {
+		Debug.Log("Turning");
 		if (right) {
 			// playerRigidbody.Rotate(Vector3.right * Time.deltaTime * speed, Space.World);
 			playerRigidbody.transform.Rotate(0.0f, Time.deltaTime * speed, 0.0f, Space.World);

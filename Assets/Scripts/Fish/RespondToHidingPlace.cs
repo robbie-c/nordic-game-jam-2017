@@ -54,6 +54,8 @@ public class RespondToHidingPlace : MonoBehaviour {
 	void MoveTowardsMiddle (Vector3 middle, float threshold) {
 		float distanceToMiddle = (middle - transform.position).magnitude;
 		if (distanceToMiddle > threshold) {
+			playerRigidbody.velocity = Vector3.zero;
+			playerRigidbody.isKinematic = true;
 			playerRigidbody.MovePosition (transform.position + hidingSpeed * (middle - transform.position).normalized);
 		}
 	}

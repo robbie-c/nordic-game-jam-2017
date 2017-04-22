@@ -54,6 +54,13 @@ function * wsConnection ({ client }) {
   );
 }
 
+function * wsDisconnect ({client}) {
+  yield put({
+    type: actions.REMOVE_PLAYER,
+    id: client.playerId
+  });
+}
+
 function * wsMessage ({message}) {
   yield * handleMessage(message.id, message);
 }
@@ -107,5 +114,6 @@ export default function * saga () {
   yield takeEvery(actions.WS_CONNECTION, wsConnection);
   yield takeEvery(actions.WS_MESSAGE, wsMessage);
   yield takeEvery(actions.UDP_MESSAGE, udpMessage);
+  yield takeEvery(actions.WS_DISCONNECT, wsDisconnect);
   yield throttle(1000, [actions.ADD_PLAYER, actions.PLAYER_STATE_UPDATE], playerStateUpdate);
 }

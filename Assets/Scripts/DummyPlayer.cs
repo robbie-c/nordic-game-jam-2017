@@ -26,7 +26,7 @@ public class DummyPlayer : MonoBehaviour {
 		serverCommunication = ServerCommunication.GetRoot ();
 		countdown = GameObject.FindGameObjectWithTag ("countdown").GetComponent<Text> ();
 		playerMovement = GetComponent<PlayerMovement> ();
-		playerMovement.enabled = false;
+//		playerMovement.enabled = false;
 
 		countdown.enabled = false;
 		StartCoroutine("BackgroundSendGameStateToServerTask");

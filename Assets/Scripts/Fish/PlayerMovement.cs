@@ -16,7 +16,7 @@ public class PlayerMovement : MonoBehaviour {
 	public Vector3 velocity;
 
 	// Player stats
-	public float acceleration = 0.01f;
+	public float acceleration = 0.1f;
 	public float dragCoefficient = 0.95f;
 	public float minimumSpeed = 0.01f;
 	public float normalTurningSpeed = 500f;

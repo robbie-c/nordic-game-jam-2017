@@ -16,6 +16,7 @@ public class DummyPlayer : MonoBehaviour {
 	void Start () {
 		frozen = false;
 		id = -1;
+		otherPlayers = new Dictionary<int, GameObject> ();
 		serverCommunication = ServerCommunication.GetRoot ();
 	}
 	
@@ -38,7 +39,7 @@ public class DummyPlayer : MonoBehaviour {
 
 			if (serverMessage.Contains ("ServerToClientHelloMessage")) {
 				Debug.Log("Setting ID and position");
-				ServerHelloMessage message = JsonUtility.FromJson<ServerHelloMessage> (serverMessage);
+				ServerToClientHelloMessage message = JsonUtility.FromJson<ServerToClientHelloMessage> (serverMessage);
 				this.id = message.id;
 				this.transform.position = message.initialPosition.ToVector3 ();
 			}
@@ -68,6 +69,7 @@ public class DummyPlayer : MonoBehaviour {
 	private void QueryUDPConnections()
 	{
 		ServerGameStateMessage message = serverCommunication.CheckForOtherClientGameStates ();
+		Debug.Log (message);
 		if (message == null) {
 			return;
 		}
@@ -76,6 +78,7 @@ public class DummyPlayer : MonoBehaviour {
 	}
 
 	private void ProcessOtherPlayers(ServerGameStateMessage message) {
+		Debug.Log ("Processing other players, message: " + message);
 		foreach (ClientGameStateMessage client in message.clients)
 		{
 			Vector3 position = client.playerPosition.ToVector3 ();

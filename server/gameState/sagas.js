@@ -6,10 +6,9 @@ import {
   selectPlayers
 } from './selectors';
 import {
-  udpSend
+  udpSend,
+  wsSend
 } from './calls';
-
-import { kClientPort } from '../constants';
 
 function * wsConnection ({ client }) {
   const player = {
@@ -38,13 +37,10 @@ function * wsConnection ({ client }) {
     player
   });
 
-  function send (message) {
-    client.send(message);
-  }
-
   console.log('sending hello message to client ' + player.id);
   yield call(
-    send,
+    wsSend,
+    client,
     JSON.stringify({
       type: 'ServerToClientHelloMessage',
       id: player.id,
@@ -54,6 +50,13 @@ function * wsConnection ({ client }) {
       frozen: player.frozen
     })
   );
+}
+
+function * wsDisconnect ({client}) {
+  yield put({
+    type: actions.REMOVE_PLAYER,
+    id: client.playerId
+  });
 }
 
 function * wsMessage ({message}) {
@@ -109,5 +112,6 @@ export default function * saga () {
   yield takeEvery(actions.WS_CONNECTION, wsConnection);
   yield takeEvery(actions.WS_MESSAGE, wsMessage);
   yield takeEvery(actions.UDP_MESSAGE, udpMessage);
+  yield takeEvery(actions.WS_DISCONNECT, wsDisconnect);
   yield throttle(1000, [actions.ADD_PLAYER, actions.PLAYER_STATE_UPDATE], playerStateUpdate);
 }

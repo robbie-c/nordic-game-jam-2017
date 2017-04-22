@@ -19,7 +19,7 @@ public class CrashDummyPlayer : MonoBehaviour {
 	Rigidbody playerRigidbody;
 
 	// Player stats
-	public float acceleration = 0.01f;
+	public float acceleration = 0.1f;
 	public float wiggleAcceleration = 0.8f;
 	public float dragCoefficient = 0.96f;
 	// public float minimumSpeed = 0.01f;

@@ -8,7 +8,7 @@ public class DummyPlayer : MonoBehaviour {
 
 	public GameObject prefab;
 	private ServerCommunication serverCommunication;
-	private bool frozen;
+	public bool frozen;
 	private int id;
 	private Dictionary<int, GameObject> otherPlayers;
 

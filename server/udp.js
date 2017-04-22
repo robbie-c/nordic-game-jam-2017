@@ -18,7 +18,7 @@ export default function createUdpServer (onCreate, onMessage, onError) {
 
   udpServer.on('listening', () => {
     const address = udpServer.address();
-    console.log(`server listening ${address.address}:${address.port}`);
+    console.log(`udp server listening ${address.address}:${address.port}`);
     onCreate(udpServer);
   });
 

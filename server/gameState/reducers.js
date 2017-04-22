@@ -69,11 +69,11 @@ function playerReducer (state = [], action = {}) {
 
 function gameIdReducer (state = 0, action = {}) {
   switch (action.type) {
-    case ADMIN_START_GAME: {
+    case START_GAME: {
       if (state < Number.MAX_SAFE_INTEGER) {
         return state + 1;
       } else {
-        return Number.MIN_SAFE_INTEGER;
+        return 0;
       }
     }
     default:

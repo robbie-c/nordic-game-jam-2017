@@ -7,6 +7,7 @@ namespace AssemblyCSharp
 	{
 		public string type;
 		public int id;
+		public int gameId;
 		public Vector3Serialisable initialPosition;
 		public Vector3Serialisable initialVelocity;
 		public Vector3Serialisable initialDirection;

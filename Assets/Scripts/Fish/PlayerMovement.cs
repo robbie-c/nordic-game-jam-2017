@@ -14,11 +14,10 @@ public class PlayerMovement : MonoBehaviour {
 
 	// Player position etc
 	Rigidbody playerRigidbody;
-	public Vector3 velocity;
 
 	// Player stats
 	public float acceleration = 0.01f;
-	public float wiggleAcceleration = 0.01f;
+	public float wiggleAcceleration = 1f;
 	public float dragCoefficient = 0.95f;
 	// public float minimumSpeed = 0.01f;
 	public float normalTurningSpeed = 500f;
@@ -59,10 +58,10 @@ public class PlayerMovement : MonoBehaviour {
 	void Start () { 
 		timeAfterTurnButtonUp = 1f;
 		timeAfterTurnButtonDown = 0f;
-		velocity = Vector3.zero;
+		playerRigidbody.velocity = Vector3.zero;
 		timeSinceLastWiggle = 2f * wiggleDuration; // so that a wiggle does not happen on spawn
 
-		bool isMobile = Application.platform == RuntimePlatform.Android;
+		bool isMobile = Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer;
 
 		// for Debug purposes
 		// isMobile = true;
@@ -156,7 +155,7 @@ public class PlayerMovement : MonoBehaviour {
 
 	void FixedUpdate () {
 		// Apply drag
-		velocity = UpdateVelocity(velocity);
+		playerRigidbody.velocity = UpdateVelocity(playerRigidbody.velocity);
 
 		timeSinceLastWiggle += Time.deltaTime;
 		
@@ -174,18 +173,14 @@ public class PlayerMovement : MonoBehaviour {
 			Turn(turningSpeed * CalculateTurningSpeedFactor(timeAfterTurnButtonDown, timeAfterTurnButtonUp), false);
 		}
 		if (wantsToAccelerate) {
-			velocity = Accelerate(velocity, acceleration);
+			playerRigidbody.velocity = Accelerate(playerRigidbody.velocity, acceleration);
 		}
 		if (timeSinceLastWiggle <= wiggleDuration) {
-			velocity = Accelerate(velocity, 
+			playerRigidbody.velocity = Accelerate(playerRigidbody.velocity, 
 				CalculateWiggleAcceleration(wiggleAcceleration, timeAfterTurnButtonUp, wiggleOptimumButtonInterval)
 			);
 			// isWiggling = false; 
 		}
-
-		// Move the player collider
-		UpdatePosition(velocity);
-		
 	}
 
 	void Turn(float speed, bool right) {
@@ -228,9 +223,5 @@ public class PlayerMovement : MonoBehaviour {
 			return Vector3.zero;
 		}
 		
-	}
-
-	void UpdatePosition (Vector3 velocity) {
-		playerRigidbody.MovePosition (transform.position + velocity);
 	}
 }

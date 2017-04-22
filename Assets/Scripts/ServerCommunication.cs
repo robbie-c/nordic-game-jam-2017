@@ -110,10 +110,12 @@ public class ServerCommunication : MonoBehaviour {
 	{
 		ServerGameStateMessage jsonObj = null;
 		string serverMessage;
-		if (TryGetServerUdpMessage(out serverMessage)) 
-		{
-			Debug.Log("Server sent UDP GameState: " + serverMessage);
+		if (TryGetServerUdpMessage (out serverMessage)) {
+			Debug.Log ("Server sent UDP GameState: " + serverMessage);
 			jsonObj = JsonUtility.FromJson<ServerGameStateMessage> (serverMessage);
+		} else 
+		{
+			Debug.Log ("Server message received is null");
 		}
 		return jsonObj;
 	}

@@ -5,7 +5,7 @@ namespace AssemblyCSharp
 {
 	public static class Constants
 	{
-		public const string kServerHostname = "saffron.local";
+		public const string kServerHostname = "Carolines-MacBook-Pro.local";
 		public const int kServerPort = 41234;
 		public const int kClientPort = 41235;
 		public const int kGameStateUpdateTickMs = 500;

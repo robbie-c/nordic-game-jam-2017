@@ -53,6 +53,8 @@ public class RespondToHidingPlace : MonoBehaviour {
 	public void ExitHiding () {
 		Debug.Log("ExitHiding");
 
+		playerMovementScript.ResetMovementBools();
+
 		// cam.transform.parent = oldParent;
 		cam.transform.localRotation = originalCamRotation;
 		cam.transform.localPosition = originalCamPosition;

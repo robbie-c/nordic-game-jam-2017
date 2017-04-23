@@ -49,6 +49,12 @@ public class PlayerMovement : MonoBehaviour {
 
 	public Button yourButton;
 
+	public void ResetMovementBools () {
+		wantsToAccelerate = false;
+		wantsToTurnLeft = false;
+		wantsToTurnRight = false;
+	}
+
 	void Awake () {
 		playerRigidbody = GetComponent<Rigidbody> ();
 		turningSpeed = normalTurningSpeed;

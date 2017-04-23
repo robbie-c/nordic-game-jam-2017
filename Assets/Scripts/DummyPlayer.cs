@@ -212,13 +212,13 @@ public class DummyPlayer : MonoBehaviour {
 			} 
 
 			GameObject otherPlayer;
-			if (otherPlayers.ContainsKey (id)) {
+			if (otherPlayers.ContainsKey (otherId)) {
 //				Debug.Log ("Found player with id " + id.ToString());
-				otherPlayer = otherPlayers [id];
+				otherPlayer = otherPlayers [otherId];
 			} else {
 //				Debug.Log ("Creating new player with id: " + id.ToString());
 				otherPlayer = Instantiate(prefab, position, Quaternion.identity);
-				otherPlayers.Add (id, otherPlayer);
+				otherPlayers.Add (otherId, otherPlayer);
 			}
 			var otherPlayerScript = otherPlayer.GetComponent<OtherPlayer> ();
 			otherPlayerScript.desiredPosition = position;

@@ -242,10 +242,10 @@ public class DummyPlayer : MonoBehaviour {
 			yield return new WaitForSeconds(1);
 		}
 		yield return true;
-		countdown.enabled = false;
 		finalCountingDownCoroutine = null;
 
 		countdown.enabled = false;
+		countingDown = false;
 		FinishGame ();
 	}
 

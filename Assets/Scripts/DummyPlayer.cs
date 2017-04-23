@@ -16,7 +16,7 @@ public class DummyPlayer : MonoBehaviour {
 	private bool countingDown = false;
 	private Text countdown;
 	private bool waitingToStart = true;
-	public int startSeconds = 3;
+	public int startSeconds = 0;
 	public int finishSeconds = 10;
 	private PlayerMovement playerMovement;
 	private Image waitingForPlayersScreen;
@@ -198,6 +198,7 @@ public class DummyPlayer : MonoBehaviour {
 			Vector3 velocity = client.playerVelocity.ToVector3 ();
 			Vector3 direction = client.playerDirection.ToVector3 ();
 			bool frozen = client.frozen;
+
 			if (!countingDown && frozen) {
 				countingDown = true;
 				finalCountingDownCoroutine = FinalCountdown ();
@@ -227,17 +228,20 @@ public class DummyPlayer : MonoBehaviour {
 
 	IEnumerator FinalCountdown()
 	{
+		Debug.Log ("hit final countdown");
+		countdown.enabled = true;
 		int progress = this.finishSeconds;
+		Debug.Log ("progress = " + progress.ToString());
 
 		while (progress >= 0)
 		{
+			Debug.Log ("progress = " + progress.ToString());
 			countdown.text = progress.ToString();
 			progress -= 1;
 			yield return new WaitForSeconds(1);
-
 		}
 		yield return true;
-
+		countdown.enabled = false;
 		finalCountingDownCoroutine = null;
 
 		FinishGame ();
@@ -245,9 +249,10 @@ public class DummyPlayer : MonoBehaviour {
 
 	IEnumerator StartCountdown()
 	{
+		countdown.enabled = true;
 		int progress = this.startSeconds;
-
-		while (progress >= 0)
+		Debug.Log (progress);
+		while (progress > 0)
 		{
 			countdown.text = progress.ToString();
 			progress -= 1;
@@ -255,6 +260,7 @@ public class DummyPlayer : MonoBehaviour {
 
 		}
 		yield return true;
+		countdown.enabled = false;
 
 		startCountingDownCoroutine = null;
 		StartGame();

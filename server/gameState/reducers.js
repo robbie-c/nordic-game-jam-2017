@@ -6,10 +6,10 @@ import {
   REMOVE_PLAYER,
   PLAYER_STATE_UPDATE,
   UDP_MESSAGE,
-  ADMIN_START_GAME,
   FIRST_PLAYER_HIDDEN,
   LAST_PLAYER_HIDDEN,
-  START_GAME
+  START_GAME,
+  RESET_PLAYER
 } from './actions';
 
 function udpServerReducer (state = null, action = {}) {
@@ -61,6 +61,20 @@ function playerReducer (state = [], action = {}) {
     case REMOVE_PLAYER: {
       const { id } = action;
       return state.filter((player) => player.id !== id);
+    }
+    case RESET_PLAYER: {
+      const {playerPosition, id} = action;
+      return state.map((player) => {
+        if (player.id === id) {
+          return {
+            ...player,
+            frozen: false,
+            playerPosition: playerPosition
+          };
+        } else {
+          return player;
+        }
+      });
     }
     default:
       return state;

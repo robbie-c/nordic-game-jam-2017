@@ -1,3 +1,10 @@
+import {
+  kMaxStartingX,
+  kMinStartingX,
+  kMaxStartingZ,
+  kMinStartingZ
+} from '../constants';
+
 export function udpSend (udpServer, ipAddr, ipPort, message) {
   console.log('sending udp to ' + ipAddr + ' ' + ipPort);
   udpServer.send(message, 0, message.length, ipPort, ipAddr);
@@ -22,4 +29,16 @@ export function getRandomInt (min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function getRandomArbitrary(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+export function getRandomStartingPosition () {
+  return {
+    x: getRandomArbitrary(kMinStartingX, kMaxStartingX),
+    y: 0,
+    z: getRandomArbitrary(kMinStartingZ, kMaxStartingZ)
+  };
 }

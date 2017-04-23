@@ -93,7 +93,11 @@ public class DummyPlayer : MonoBehaviour {
 	private void HandleServerToClientHelloMessage(ServerToClientHelloMessage message) {
 		this.id = message.id;
 		this.gameId = message.gameId;
-		this.transform.position = message.initialPosition.ToVector3 ();
+		this.transform.position = message.playerPosition.ToVector3 ();
+		connectingScreen.enabled = false;
+		waitingForPlayersScreen.enabled = true;
+		winScreen.enabled = false;
+		loseScreen.enabled = false;
 
 		var hidingPlace = HidingPlace.GetRoot ();
 		if (hidingPlace) {
@@ -104,6 +108,7 @@ public class DummyPlayer : MonoBehaviour {
 	private void HandleServerToClientStartMessage(ServerToClientStartMessage message) {
 		this.gameId = message.gameId;
 		this.frozen = false;
+		this.transform.position = message.playerPosition.ToVector3 ();
 		if (finalCountingDownCoroutine != null) {
 			StopCoroutine (finalCountingDownCoroutine);
 		}

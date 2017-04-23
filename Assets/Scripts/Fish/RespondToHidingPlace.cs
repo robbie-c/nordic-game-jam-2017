@@ -9,7 +9,6 @@ public class RespondToHidingPlace : MonoBehaviour {
 
 	public float hidingSpeed = 0.05f;
 	public float lookRotationSpeed = 1.3f;
-	public bool isInHiding = false;
 	public Vector3 middleOfHiding;
 	public float closeEnoughToMiddle = 2f;
 	// public float timerMoveToMiddle = 3f; // How long the fish will attemt to move to the middle before giving up
@@ -26,6 +25,10 @@ public class RespondToHidingPlace : MonoBehaviour {
 
 	private DummyPlayer dummyPlayer;
 
+	private Quaternion originalCamRotation;
+	private Vector3 originalCamPosition;
+	private Transform oldParent;
+
 	public void EnterHiding (Vector3 middle) {
 		Debug.Log(this + " called EnterHiding at position: " + middle);
 		playerMovementScript = GetComponent<PlayerMovement>();
@@ -34,10 +37,22 @@ public class RespondToHidingPlace : MonoBehaviour {
 		// Push the fish towards the middle of the hiding place
 		middleOfHiding = middle;
 		startTime = Time.time;
-		isInHiding = true;
+		dummyPlayer.frozen = true;
 		entryPoint = transform.position;
-		if (playerMovementScript != null) cam.transform.parent = null; // Detach camera from player
 
+		if (playerMovementScript != null) {
+			oldParent = cam.transform.parent;
+			cam.transform.parent = null; // Detach camera from player
+		}
+	}
+
+	public void ExitHiding () {
+		cam.transform.parent = oldParent;
+		cam.transform.localRotation = originalCamRotation;
+		cam.transform.localPosition = originalCamPosition;
+
+		oldParent = null;
+		playerRigidbody.transform.rotation = Quaternion.identity;
 	}
 
 	void Start () {
@@ -49,18 +64,24 @@ public class RespondToHidingPlace : MonoBehaviour {
 		dummyPlayer = GetComponent<DummyPlayer> ();
 
 		Debug.Log("cam = " + cam);
+		originalCamPosition = cam.transform.localPosition;
+		originalCamRotation = cam.transform.localRotation;
 	}
 
 	void FixedUpdate () {
 		// if (isInHiding && timerMoveToMiddle > 0f) {
-		if (isInHiding) {
+		if (dummyPlayer.frozen) {
 			// timerMoveToMiddle -= Time.deltaTime;
 			MoveTowardsMiddle(middleOfHiding, closeEnoughToMiddle);	
 			
 		}
-		if (isInHiding) {
+		if (dummyPlayer.frozen) {
 			RotateToFaceUp();
 			if (playerMovementScript != null) MovePlayerCamera(middleOfHiding + Vector3.up * 10f, Vector3.down);
+		}
+
+		if (!dummyPlayer.frozen && oldParent) {
+			ExitHiding ();
 		}
 	}
 

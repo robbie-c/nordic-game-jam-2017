@@ -13,7 +13,6 @@ public class DummyPlayer : MonoBehaviour {
 	private int id;
 	private int gameId;
 	private Dictionary<int, GameObject> otherPlayers;
-	private bool countingDown = false;
 	private Text countdown;
 	private bool waitingToStart = true;
 	public int startSeconds = 0;
@@ -111,9 +110,11 @@ public class DummyPlayer : MonoBehaviour {
 		this.transform.position = message.playerPosition.ToVector3 ();
 		if (finalCountingDownCoroutine != null) {
 			StopCoroutine (finalCountingDownCoroutine);
+			finalCountingDownCoroutine = null;
 		}
 		if (startCountingDownCoroutine != null) {
-			return;
+			StopCoroutine (startCountingDownCoroutine);
+			startCountingDownCoroutine = null;
 		}
 		startCountingDownCoroutine = StartCountdown ();
 		StartCoroutine(startCountingDownCoroutine);
@@ -197,10 +198,8 @@ public class DummyPlayer : MonoBehaviour {
 			Vector3 position = client.playerPosition.ToVector3 ();
 			Vector3 velocity = client.playerVelocity.ToVector3 ();
 			Vector3 direction = client.playerDirection.ToVector3 ();
-			bool frozen = client.frozen;
 
-			if (!countingDown && frozen) {
-				countingDown = true;
+			if (finalCountingDownCoroutine == null && client.frozen) {
 				finalCountingDownCoroutine = FinalCountdown ();
 				StartCoroutine(finalCountingDownCoroutine);
 			}
@@ -245,7 +244,6 @@ public class DummyPlayer : MonoBehaviour {
 		finalCountingDownCoroutine = null;
 
 		countdown.enabled = false;
-		countingDown = false;
 		FinishGame ();
 	}
 

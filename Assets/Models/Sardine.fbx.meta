@@ -1,18 +1,29 @@
 fileFormatVersion: 2
-guid: 40071a18263db4ad69684199580ca364
+guid: d5c73fadd84acc946925cba06c511d16
+timeCreated: 1492905071
+licenseType: Free
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
-    100000: Camera
-    100002: Plane.000
-    100004: //RootNode
-    400000: Camera
-    400002: Plane.000
-    400004: //RootNode
-    2300000: Plane.000
-    3300000: Plane.000
-    4300000: Plane.000
+    100000: Bones
+    100002: Middle
+    100004: RootBone
+    100006: //RootNode
+    100008: Sardine
+    100010: Tail
+    100012: Tail_end
+    400000: Bones
+    400002: Middle
+    400004: RootBone
+    400006: //RootNode
+    400008: Sardine
+    400010: Tail
+    400012: Tail_end
+    4300000: Sardine
+    7400000: Bones|BonesAction
+    7400002: Bones|PointAction
     9500000: //RootNode
+    13700000: Sardine
   materials:
     importMaterials: 1
     materialName: 0
@@ -39,7 +50,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 0
+    globalScale: 1
     meshCompression: 0
     addColliders: 0
     importBlendShapes: 1

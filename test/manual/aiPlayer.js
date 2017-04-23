@@ -61,6 +61,12 @@ async function startSendingUdp () {
       z: position.z
     };
 
+    direction = {
+      x: 0,
+      y: 0,
+      z: 1
+    };
+
     const message = JSON.stringify({
       type: 'ClientGameStateMessage',
       id: playerId,

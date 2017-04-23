@@ -214,14 +214,15 @@ public class DummyPlayer : MonoBehaviour {
 			if (otherPlayers.ContainsKey (id)) {
 //				Debug.Log ("Found player with id " + id.ToString());
 				otherPlayer = otherPlayers [id];
-				otherPlayer.transform.position = position;
 			} else {
 //				Debug.Log ("Creating new player with id: " + id.ToString());
 				otherPlayer = Instantiate(prefab, position, Quaternion.identity);
 				otherPlayers.Add (id, otherPlayer);
 			}
-			otherPlayer.GetComponent<Rigidbody>().velocity = velocity;
-			otherPlayer.transform.forward = direction;
+			var otherPlayerScript = otherPlayer.GetComponent<OtherPlayer> ();
+			otherPlayerScript.desiredPosition = position;
+			otherPlayerScript.desiredRotation = Quaternion.LookRotation(direction, Vector3.up);
+			otherPlayerScript.desiredVelocity = velocity;
 		}
 	}
 

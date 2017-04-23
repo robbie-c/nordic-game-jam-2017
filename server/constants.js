@@ -8,6 +8,10 @@ export const kGameStateUpdateTickMs = 500;
 export const kSecondsBetweenFirstHideAndRoundEnd = 10;
 export const kSecondsBetweenRoundEndAndNextRoundStart = 5;
 export const kNumHidingPlaces = 10;
+export const kMinStartingX = -2.5;
+export const kMaxStartingX = 24;
+export const kMinStartingZ = -20;
+export const kMaxStartingZ = -10;
 
 export default {
   kServerPort,

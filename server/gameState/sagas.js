@@ -13,7 +13,8 @@ import {
   udpSend,
   wsSend,
   delaySeconds,
-  getRandomInt
+  getRandomInt,
+  getRandomStartingPosition
 } from './calls';
 import {
   kGameStateUpdateTickMs,
@@ -25,13 +26,10 @@ import {
 function * wsConnection ({ client }) {
   const gameId = yield select(selectGameId);
   const hidingPlace = yield select(selectHidingPlace);
+  const playerPosition = yield call(getRandomStartingPosition);
 
   const player = {
-    playerPosition: {
-      x: 0,
-      y: 0,
-      z: 0
-    },
+    playerPosition,
     playerDirection: {
       x: 0,
       y: 0,
@@ -179,13 +177,22 @@ function * startGame () {
     hidingPlace
   });
 
-  const message = JSON.stringify({
-    type: 'ServerToClientStartMessage',
-    gameId,
-    hidingPlace
-  });
-
   for (const player of players) {
+    const playerPosition = yield call(getRandomStartingPosition);
+
+    yield put({
+      type: actions.RESET_PLAYER,
+      playerPosition,
+      id: player.id
+    });
+
+    const message = JSON.stringify({
+      type: 'ServerToClientStartMessage',
+      gameId,
+      hidingPlace,
+      playerPosition
+    });
+
     if (player.ws) {
       yield call(
         wsSend,

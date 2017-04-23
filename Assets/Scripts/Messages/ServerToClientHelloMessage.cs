@@ -8,9 +8,9 @@ namespace AssemblyCSharp
 		public string type;
 		public int id;
 		public int gameId;
-		public Vector3Serialisable initialPosition;
-		public Vector3Serialisable initialVelocity;
-		public Vector3Serialisable initialDirection;
+		public Vector3Serialisable playerPosition;
+		public Vector3Serialisable playerVelocity;
+		public Vector3Serialisable playerDirection;
 		public int hidingPlace;
 	}
 }

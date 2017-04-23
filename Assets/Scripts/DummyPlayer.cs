@@ -245,6 +245,7 @@ public class DummyPlayer : MonoBehaviour {
 		countdown.enabled = false;
 		finalCountingDownCoroutine = null;
 
+		countdown.enabled = false;
 		FinishGame ();
 	}
 

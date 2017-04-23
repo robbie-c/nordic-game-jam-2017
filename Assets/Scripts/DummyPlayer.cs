@@ -22,8 +22,15 @@ public class DummyPlayer : MonoBehaviour {
 	private Image waitingForPlayersScreen;
 	private Image finishScreen;
 	private Image connectingScreen;
+	private Image titleScreen;
 	private IEnumerator finalCountingDownCoroutine;
 	private IEnumerator startCountingDownCoroutine;
+
+	private enum Status {
+		titleScreen, connecting, waitingForPlayers, playing, lose, win
+	}
+
+	private Status status;
 
 	void Start () {
 		frozen = false;
@@ -36,29 +43,36 @@ public class DummyPlayer : MonoBehaviour {
 		waitingForPlayersScreen = GameObject.FindGameObjectWithTag ("WaitingForPlayers").GetComponent<Image> ();
 		finishScreen = GameObject.FindGameObjectWithTag ("finishScreen").GetComponent<Image> ();
 		connectingScreen = GameObject.FindGameObjectWithTag ("Connecting").GetComponent<Image> ();
+		titleScreen = GameObject.FindGameObjectWithTag ("TitleScreen").GetComponent<Image> ();
 		finishScreen.enabled = false;
 		waitingForPlayersScreen.enabled = false;
-		connectingScreen.enabled = true;
+		connectingScreen.enabled = false;
+		status = Status.titleScreen;
 
 		// TODO: in real game, this needs to be uncommented
-//		playerMovement.enabled = false;
+		playerMovement.enabled = false;
 
 		countdown.enabled = false;
 
 		bool isMobile = Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer;
 
 		// for Debug purposes
-		isMobile = true;
+//		isMobile = true;
 
 		if (!isMobile) {
 			Debug.Log ("is not mobile");
-			GameObject.FindGameObjectWithTag("rightButton").GetComponent<Button>().enabled = false;
-			GameObject.FindGameObjectWithTag("leftButton").GetComponent<Button>().enabled = false;
+			GameObject.FindGameObjectWithTag ("rightButton").SetActive(false);
+			GameObject.FindGameObjectWithTag ("leftButton").SetActive(false);
 		}
 
 		StartCoroutine("BackgroundSendGameStateToServerTask");
 	}
-	
+
+	public void EndTitleScreen() {
+		titleScreen.gameObject.active = false;
+		status = Status.connecting;
+		connectingScreen.enabled = true;
+	}
 
 	void Update () {
 		QueryUDPConnections ();
@@ -76,9 +90,6 @@ public class DummyPlayer : MonoBehaviour {
 		this.id = message.id;
 		this.gameId = message.gameId;
 		this.transform.position = message.initialPosition.ToVector3 ();
-		connectingScreen.enabled = false;
-		waitingForPlayersScreen.enabled = true;
-		finishScreen.enabled = false;
 
 		var hidingPlace = HidingPlace.GetRoot ();
 		if (hidingPlace) {
@@ -109,6 +120,12 @@ public class DummyPlayer : MonoBehaviour {
 
 	private void QueryWebSocketConnections() {
 		string serverMessage;
+
+		if (status == Status.titleScreen) {
+			// don't process websockets
+			return;
+		}
+
 		if (serverCommunication.TryGetServerWebSocketMessage (out serverMessage)) {
 			Debug.Log ("Server sent WS : " + serverMessage);
 
@@ -116,6 +133,10 @@ public class DummyPlayer : MonoBehaviour {
 				Debug.Log ("Setting ID and position");
 				ServerToClientHelloMessage message = JsonUtility.FromJson<ServerToClientHelloMessage> (serverMessage);
 				HandleServerToClientHelloMessage (message);
+				status = Status.waitingForPlayers;
+				connectingScreen.enabled = false;
+				waitingForPlayersScreen.enabled = true;
+				finishScreen.enabled = false;
 			}
 
 			else if (serverMessage.Contains("ServerToClientStartMessage")) {
@@ -231,7 +252,14 @@ public class DummyPlayer : MonoBehaviour {
 
 	public void FinishGame() {
 		playerMovement.enabled = false;
-		finishScreen.enabled = true;
+
+		if (frozen) {
+			status = Status.win;
+			finishScreen.enabled = true;
+		} else {
+			status = Status.lose;
+			finishScreen.enabled = true;
+		}
 	}
 
 	public void StartGame() {

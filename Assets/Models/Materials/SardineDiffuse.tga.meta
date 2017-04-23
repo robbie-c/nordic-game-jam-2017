@@ -4,9 +4,12 @@ guid: 147b39a8a61084349913b26da9dcfe01
 timeCreated: 1492899355
 =======
 guid: 6ffe8a513cfd84418aeb01fd86c712fd
+<<<<<<< HEAD
+=======
 timeCreated: 1492897656
 >>>>>>> 473caddd4984dce0c194d41b6b305e68aca081fa
 licenseType: Free
+>>>>>>> develop
 TextureImporter:
   fileIDToRecycleName: {}
   serializedVersion: 4

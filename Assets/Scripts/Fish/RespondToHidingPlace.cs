@@ -20,7 +20,9 @@ public class RespondToHidingPlace : MonoBehaviour {
 	private Vector3 entryPoint; // The place where the player first enters the hiding are is used as the reference for moving the camera to prevent it from shaking with the player
 	private Camera cam;
 	private PlayerMovement playerMovementScript;
-	private GameObject sardineModel;
+
+	private Transform sardineModel;
+
 
 
 	private DummyPlayer dummyPlayer;

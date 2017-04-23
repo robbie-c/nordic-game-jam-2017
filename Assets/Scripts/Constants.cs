@@ -14,7 +14,7 @@ namespace AssemblyCSharp
 		public const int kNumHidingPlaces = 10;
 		public static readonly Vector3[] kHidingPlaces = new [] {
 			new Vector3(35, 0, -47),
-			new Vector3(1, 0 -40),
+			new Vector3(1, 0, -40),
 			new Vector3(-16, 0, -49),
 			new Vector3(35, 0, -20),
 			new Vector3(-18, 0, -25),

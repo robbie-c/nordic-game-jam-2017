@@ -70,6 +70,9 @@ function * wsConnection ({ client }) {
     client,
     helloMessage
   );
+
+  console.log('sending start message to client ' + player.id);
+  yield * sendStartGameMessage(player, gameId, hidingPlace, playerPosition);
 }
 
 function * wsDisconnect ({client}) {
@@ -176,6 +179,23 @@ function * timeoutGameEnd (action) {
   }
 }
 
+function * sendStartGameMessage (player, gameId, hidingPlace, playerPosition) {
+  const message = JSON.stringify({
+    type: 'ServerToClientStartMessage',
+    gameId,
+    hidingPlace,
+    playerPosition
+  });
+
+  if (player.ws) {
+    yield call(
+      wsSend,
+      player.ws,
+      message
+    );
+  }
+}
+
 function * startGame () {
   const players = yield select(selectPlayers);
   const oldGameId = yield select(selectGameId);
@@ -198,24 +218,11 @@ function * startGame () {
       id: player.id
     });
 
-    const message = JSON.stringify({
-      type: 'ServerToClientStartMessage',
-      gameId,
-      hidingPlace,
-      playerPosition
-    });
-
-    if (player.ws) {
-      yield call(
-        wsSend,
-        player.ws,
-        message
-      );
-    }
+    yield * sendStartGameMessage(player, gameId, hidingPlace, playerPosition);
   }
 }
 
-function * updateAdminClients(client) {
+function * updateAdminClients (client) {
   const players = yield select(selectPlayers);
 
   const message = JSON.stringify({

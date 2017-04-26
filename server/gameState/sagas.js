@@ -7,17 +7,20 @@ import {
   selectGameId,
   selectHidingPlace,
   selectAnyPlayersHidden,
-  selectAllPlayersHidden
+  selectAllPlayersHidden,
+  selectAdminIo
 } from './selectors';
 import {
   udpSend,
   wsSend,
+  wsEmit,
   delaySeconds,
   getRandomInt,
   getRandomStartingPosition
 } from './calls';
 import {
   kGameStateUpdateTickMs,
+  kAdminUpdateTickMs,
   kSecondsBetweenFirstHideAndRoundEnd,
   kSecondsBetweenRoundEndAndNextRoundStart,
   kNumHidingPlaces
@@ -50,20 +53,22 @@ function * wsConnection ({ client }) {
     player
   });
 
+  const helloMessage = JSON.stringify({
+    type: 'ServerToClientHelloMessage',
+    id: player.id,
+    gameId,
+    playerPosition: player.playerPosition,
+    playerDirection: player.playerDirection,
+    playerVelocity: player.playerVelocity,
+    frozen: player.frozen,
+    hidingPlace
+  });
+
   console.log('sending hello message to client ' + player.id);
   yield call(
     wsSend,
     client,
-    JSON.stringify({
-      type: 'ServerToClientHelloMessage',
-      id: player.id,
-      gameId,
-      playerPosition: player.playerPosition,
-      playerDirection: player.playerDirection,
-      playerVelocity: player.playerVelocity,
-      frozen: player.frozen,
-      hidingPlace
-    })
+    helloMessage
   );
 }
 
@@ -125,8 +130,15 @@ function * playerStateUpdate () {
   });
 
   for (const player of players) {
-    if (player.id >= 0 && player.udpAddr && player.udpPort) {
-      yield call(udpSend, udpServer, player.udpAddr, player.udpPort, message);
+    if (player.id >= 0) {
+      if (player.udpAddr && player.udpPort) {
+        yield call(udpSend, udpServer, player.udpAddr, player.udpPort, message);
+      } else if (player.ws) {
+        // TODO consider rate limiting this
+        yield call(wsSend, player.ws, message);
+      } else {
+        console.log('no way to send state update');
+      }
     }
   }
 
@@ -203,6 +215,26 @@ function * startGame () {
   }
 }
 
+function * updateAdminClients(client) {
+  const players = yield select(selectPlayers);
+
+  const message = JSON.stringify({
+    numPlayers: players.length,
+    numFrozenPlayers: players.filter(player => player.frozen).length
+  });
+
+  yield call(wsEmit, client, message);
+}
+
+function * adminConnected ({client}) {
+  yield * updateAdminClients(client);
+}
+
+function * adminClientUpdate () {
+  const adminIo = yield select(selectAdminIo);
+  yield * updateAdminClients(adminIo);
+}
+
 function * adminStartGame () {
   yield put({type: actions.REQUEST_START_GAME});
 }
@@ -215,5 +247,7 @@ export default function * saga () {
   yield takeEvery(actions.ADMIN_START_GAME, adminStartGame);
   yield takeEvery(actions.REQUEST_START_GAME, startGame);
   yield takeLatest([actions.START_GAME, actions.FIRST_PLAYER_HIDDEN], timeoutGameEnd);
-  yield throttle(kGameStateUpdateTickMs, [actions.ADD_PLAYER, actions.PLAYER_STATE_UPDATE], playerStateUpdate);
+  yield throttle(kGameStateUpdateTickMs, [actions.ADD_PLAYER, actions.REMOVE_PLAYER, actions.PLAYER_STATE_UPDATE], playerStateUpdate);
+  yield throttle(kAdminUpdateTickMs, [actions.ADD_PLAYER, actions.REMOVE_PLAYER, actions.PLAYER_STATE_UPDATE], adminClientUpdate);
+  yield takeEvery(actions.ADMIN_CONNECTION, adminConnected);
 }

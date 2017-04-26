@@ -14,6 +14,10 @@ export function wsSend (client, message) {
   client.send(message);
 }
 
+export function wsEmit (client, message) {
+  client.send(message);
+}
+
 export function delayMs (ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);

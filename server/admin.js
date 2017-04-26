@@ -1,12 +1,9 @@
 import {kServerAdminPort} from './constants';
-import {
-  selectPlayers
-} from './gameState/selectors';
 const SocketIo = require('socket.io');
 const express = require('express');
 const http = require('http');
 
-export default function createAdminServer (subscribe, getState, onStartGamePressed) {
+export default function createAdminServer (onWsCreated, onConnection, onStartGamePressed) {
   const app = express();
   app.use(express.static('server/admin'));
 
@@ -19,27 +16,12 @@ export default function createAdminServer (subscribe, getState, onStartGamePress
   });
 
   io.on('connection', function (client) {
-    updateAdminClient(client);
+    onConnection(client);
 
     client.on('startGame', function () {
       onStartGamePressed();
     });
   });
 
-  function updateAdminClient (client) {
-    const state = getState();
-    const players = selectPlayers(state);
-
-    const message = JSON.stringify({
-      numPlayers: players.length,
-      numFrozenPlayers: players.filter(player => player.frozen).length
-    });
-
-    console.log('update admin clients', message);
-    client.emit('state change', message);
-  }
-
-  subscribe(() => {
-    updateAdminClient(io);
-  });
+  onWsCreated(io);
 }

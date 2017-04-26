@@ -9,7 +9,8 @@ import {
   FIRST_PLAYER_HIDDEN,
   LAST_PLAYER_HIDDEN,
   START_GAME,
-  RESET_PLAYER
+  RESET_PLAYER,
+  ADMIN_WS_CREATED
 } from './actions';
 
 function udpServerReducer (state = null, action = {}) {
@@ -130,11 +131,21 @@ function allPlayersHiddenReducer (state = false, action = {}) {
   }
 }
 
+function adminIoReducer (state = null, action = {}) {
+  switch (action.type) {
+    case ADMIN_WS_CREATED:
+      return action.io;
+    default:
+      return state;
+  }
+}
+
 export default combineReducers({
   players: playerReducer,
   udpServer: udpServerReducer,
   gameId: gameIdReducer,
   hidingPlace: hidingPlaceReducer,
   anyPlayersHidden: anyPlayersHiddenReducer,
-  allPlayersHidden: allPlayersHiddenReducer
+  allPlayersHidden: allPlayersHiddenReducer,
+  adminIo: adminIoReducer
 });

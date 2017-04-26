@@ -53,8 +53,21 @@ function onUdpError (error) {
   console.error(error);
 }
 
+function onAdminWsCreated(io) {
+  dispatch({
+    type: actions.ADMIN_WS_CREATED,
+    io
+  });
+}
+
+function onAdminWsConnected(client) {
+  dispatch({
+    type: actions.ADMIN_CONNECTION,
+    client
+  });
+}
+
 function onAdminStartGamePressed () {
-  console.log('admin start game');
   dispatch({
     type: actions.ADMIN_START_GAME
   });
@@ -62,5 +75,5 @@ function onAdminStartGamePressed () {
 
 createTcpServer(onWsConnection, onWsMessage, onWsError, onWsDisconnect);
 createUdpServer(onUdpCreate, onUdpMessage, onUdpError);
-createAdminServer(store.subscribe, store.getState, onAdminStartGamePressed);
+createAdminServer(onAdminWsCreated, onAdminWsConnected, onAdminStartGamePressed);
 console.log('Created server');

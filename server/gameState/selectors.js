@@ -22,3 +22,7 @@ export function selectAnyPlayersHidden (state) {
 export function selectAllPlayersHidden (state) {
   return state.allPlayersHidden;
 }
+
+export function selectAdminIo (state) {
+  return state.adminIo;
+}

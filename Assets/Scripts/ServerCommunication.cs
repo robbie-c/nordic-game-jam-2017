@@ -1,31 +1,46 @@
-﻿using System.Collections;
+﻿#if !(UNITY_WEBGL && !UNITY_EDITOR)
+// For hosting on Heroku, everything must be a websocket,
+// so alas, this is commented out.
+// #define ALLOW_UDP
+#endif
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 using System;
 using System.Text;
+#if ALLOW_UDP
 using System.Net;
 using System.Net.Sockets;
+#endif
 using System.Threading;
 
 using AssemblyCSharp;
-using WebSocketSharp;
 
 public class ServerCommunication : MonoBehaviour {
 
+
+	WebSocket webSocket;
+
+	Queue<Message> receivedMessageQueue = new Queue<Message>();
+	object receivedMessageQueueLock = new object();
+
+	MessageParser parser = new MessageParser ();
+
+	#if !ALLOW_UDP
+	void StartNet() {
+	}
+	#else
 	Thread receiveThread;
 
 	IPEndPoint udpEndpoint;
 	UdpClient udpClient;
-	WebSocket webSocket;
-
-	Queue<string> receivedUdpMessageQueue = new Queue<string>();
-	Queue<string> receivedWebSocketMessageQueue = new Queue<string>();
-
-	object udpLock = new object();
-	object wsLock = new object();
 
 	static IPAddress IpV4ForHostname(string hostname) {
+
+		return IPAddress.Parse(Constants.kServerHostname);
+
 		IPHostEntry hostEntry;
 		hostEntry = Dns.GetHostEntry(Constants.kServerHostname);
 
@@ -38,17 +53,48 @@ public class ServerCommunication : MonoBehaviour {
 		return null;
 	}
 
-	IEnumerator Start () {
+	private void BackgroundReceiveUdp()
+	{
+		while (true)
+		{
+			try
+			{
+				IPEndPoint senderEndpoint = new IPEndPoint(IPAddress.Any, 0);
+				byte[] data = udpClient.Receive(ref senderEndpoint);
+				string text = Encoding.UTF8.GetString(data);
+
+				var serverMessage = parser.Parse(text);
+				HandleReceivedMessage(serverMessage);
+			}
+				catch (Exception err)
+			{
+				print(err.ToString());
+			}
+		}
+	}
+
+	private void SendClientUdpMessage(Message clientMessage) {
+		string str = clientMessage.Serialize ();
+		byte[] data = Encoding.UTF8.GetBytes(str);
+		udpClient.Send(data, data.Length, udpEndpoint);
+	}
+
+	void StartNet () {
 		udpClient = new UdpClient(Constants.kClientPort);
 
 		var serverIpAddr = IpV4ForHostname (Constants.kServerHostname);
 		udpEndpoint = new IPEndPoint (serverIpAddr, Constants.kServerPort);
 
-		receiveThread = new Thread(new ThreadStart(BackgroundReceiveData));
+		receiveThread = new Thread(new ThreadStart(BackgroundReceiveUdp));
 		receiveThread.IsBackground = true;
 		receiveThread.Start();
+	}
+	#endif
 
-		var builder = new UriBuilder("ws", Constants.kServerHostname, Constants.kServerPort);
+	IEnumerator Start () {
+		StartNet ();
+
+		var builder = new UriBuilder("wss", Constants.kServerHostname, Constants.kServerPort);
 		var uri = builder.Uri;
 		Debug.Log (uri);
 		webSocket = new WebSocket(uri);
@@ -59,9 +105,8 @@ public class ServerCommunication : MonoBehaviour {
 			string reply = webSocket.RecvString();
 			if (reply != null)
 			{
-				lock (wsLock) {
-					receivedWebSocketMessageQueue.Enqueue (reply);
-				}
+				var message = parser.Parse (reply);
+				HandleReceivedMessage (message);
 			}
 			if (webSocket.error != null)
 			{
@@ -78,33 +123,16 @@ public class ServerCommunication : MonoBehaviour {
 		
 	}
 
-	private void BackgroundReceiveData()
-	{
-		while (true)
-		{
-			try
-			{
-				IPEndPoint senderEndpoint = new IPEndPoint(IPAddress.Any, 0);
-				byte[] data = udpClient.Receive(ref senderEndpoint);
-				string text = Encoding.UTF8.GetString(data);
-
-				var serverMessage = text;
-
-				lock (udpLock) {
-					receivedUdpMessageQueue.Enqueue(serverMessage);
-				}
-			}
-			catch (Exception err)
-			{
-				print(err.ToString());
-			}
+	private void HandleReceivedMessage(Message message) {
+		lock (receivedMessageQueueLock) {
+			receivedMessageQueue.Enqueue (message);
 		}
 	}
 
-	public bool TryGetServerUdpMessage(out string serverMessage) {
-		lock (udpLock) {
-			if (receivedUdpMessageQueue.Count > 0) {
-				serverMessage = receivedUdpMessageQueue.Dequeue ();
+	public bool TryGetReceivedMessage(out Message serverMessage) {
+		lock (receivedMessageQueueLock) {
+			if (receivedMessageQueue.Count > 0) {
+				serverMessage = receivedMessageQueue.Dequeue ();
 				return true;
 			} else {
 				serverMessage = null;
@@ -113,26 +141,22 @@ public class ServerCommunication : MonoBehaviour {
 		}
 	}
 		
-	public void SendClientUdpMessage(string clientMessage) {
-		byte[] data = Encoding.UTF8.GetBytes(clientMessage);
-		udpClient.Send(data, data.Length, udpEndpoint);
-	}
-
-	public bool TryGetServerWebSocketMessage(out string serverMessage) {
-		lock (wsLock) {
-			if (receivedWebSocketMessageQueue.Count > 0) {
-				serverMessage = receivedWebSocketMessageQueue.Dequeue ();
-				return true;
-			} else {
-				serverMessage = null;
-				return false;
-			}
-		}
-	}
-
-	public void SendClientWebSocketMessage(string clientMessage) {
-		byte[] data = Encoding.UTF8.GetBytes(clientMessage);
+	private void SendClientWebSocketMessage(Message clientMessage) {
+		string str = clientMessage.Serialize ();
+		byte[] data = Encoding.UTF8.GetBytes(str);
 		webSocket.Send (data);
+	}
+
+	public void SendClientMessage(Message clientMessage) {
+		#if !ALLOW_UDP
+		SendClientWebSocketMessage (clientMessage);
+		#else
+		if (clientMessage is ClientGameStateMessage) {
+			SendClientUdpMessage (clientMessage);
+		} else {
+			SendClientWebSocketMessage (clientMessage);
+		}
+		#endif
 	}
 		
 	public static ServerCommunication GetRoot() {
@@ -141,16 +165,5 @@ public class ServerCommunication : MonoBehaviour {
 		Debug.Log (serverCommunication);
 
 		return serverCommunication;
-	}
-
-	public ServerGameStateMessage CheckForOtherClientGameStates() 
-	{
-		ServerGameStateMessage jsonObj = null;
-		string serverMessage;
-		if (TryGetServerUdpMessage (out serverMessage)) {
-//			Debug.Log ("Server sent UDP GameState: " + serverMessage);
-			jsonObj = JsonUtility.FromJson<ServerGameStateMessage> (serverMessage);
-		}
-		return jsonObj;
 	}
 }

@@ -5,10 +5,10 @@ namespace AssemblyCSharp
 {
 	public static class Constants
 	{
-		public const string kServerHostname = "52.59.156.131";
-		public const int kServerPort = 41234;
+		public const string kServerHostname = "sardines-ngj2017.herokuapp.com";
+		public const int kServerPort = 443;
 		public const int kClientPort = 41235;
-		public const int kGameStateUpdateTickMs = 100;
+		public const int kGameStateUpdateTickMs = 250;
 		public const int kSecondsBetweenFirstHideAndRoundEnd = 10;
 		public const int kSecondsBetweenRoundEndAndNextRoundStart = 5;
 		public const int kNumHidingPlaces = 10;

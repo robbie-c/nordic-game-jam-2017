@@ -14,7 +14,7 @@ export default function createWsServer (onNewConnection, onMessage, onError, onD
     client.playerId = playerIdCounter++;
     onNewConnection(client);
     client.on('message', (message) => {
-      onMessage(client, message);
+      onMessage(client, JSON.parse(message));
     });
     client.on('error', (err) => {
       onError(client, err);

@@ -94,7 +94,7 @@ public class ServerCommunication : MonoBehaviour {
 	IEnumerator Start () {
 		StartNet ();
 
-		var builder = new UriBuilder("ws", Constants.kServerHostname, Constants.kServerPort);
+		var builder = new UriBuilder("wss", Constants.kServerHostname, Constants.kServerPort);
 		var uri = builder.Uri;
 		Debug.Log (uri);
 		webSocket = new WebSocket(uri);

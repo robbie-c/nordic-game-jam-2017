@@ -7,7 +7,7 @@ let playerIdCounter = 0;
 
 export default function createWsServer (onNewConnection, onMessage, onError, onDisconnect) {
   const app = express();
-  app.use(express.static('server/html'));
+  app.use(express.static('docs'));
 
   const httpServer = http.createServer(app);
 

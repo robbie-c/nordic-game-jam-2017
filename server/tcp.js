@@ -7,7 +7,7 @@ let playerIdCounter = 0;
 export default function createWsServer (onNewConnection, onMessage, onError, onDisconnect) {
   const server = new Server({
     perMessageDeflate: false,
-    port: kServerPort
+    port: process.env.PORT || kServerPort
   });
 
   server.on('connection', (client) => {

@@ -1,10 +1,16 @@
-﻿using System.Collections;
+﻿#if !(UNITY_WEBGL && !UNITY_EDITOR)
+// For hosting on Heroku, everything must be a websocket,
+// so alas, this is commented out.
+// #define ALLOW_UDP
+#endif
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 using System;
 using System.Text;
-#if !(UNITY_WEBGL && !UNITY_EDITOR)
+#if ALLOW_UDP
 using System.Net;
 using System.Net.Sockets;
 #endif
@@ -22,7 +28,7 @@ public class ServerCommunication : MonoBehaviour {
 
 	MessageParser parser = new MessageParser ();
 
-	#if UNITY_WEBGL && !UNITY_EDITOR
+	#if !ALLOW_UDP
 	void StartNet() {
 	}
 	#else
@@ -142,7 +148,7 @@ public class ServerCommunication : MonoBehaviour {
 	}
 
 	public void SendClientMessage(Message clientMessage) {
-		#if UNITY_WEBGL && !UNITY_EDITOR
+		#if !ALLOW_UDP
 		SendClientWebSocketMessage (clientMessage);
 		#else
 		if (clientMessage is ClientGameStateMessage) {

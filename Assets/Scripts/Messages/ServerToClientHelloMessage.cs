@@ -3,9 +3,8 @@
 namespace AssemblyCSharp
 {
 	[Serializable]
-	public class ServerToClientHelloMessage
+	public class ServerToClientHelloMessage : Message
 	{
-		public string type;
 		public int id;
 		public int gameId;
 		public Vector3Serialisable playerPosition;

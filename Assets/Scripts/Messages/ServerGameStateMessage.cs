@@ -5,10 +5,9 @@ using System.Collections.Generic;
 namespace AssemblyCSharp
 {
 	[Serializable]
-	public class ServerGameStateMessage
+	public class ServerGameStateMessage: Message
 	{
 		public List<ClientGameStateMessage> clients;
-		public string type;
 		public int gameId;
 	}
 }

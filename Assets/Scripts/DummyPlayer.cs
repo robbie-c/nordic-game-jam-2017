@@ -78,8 +78,7 @@ public class DummyPlayer : MonoBehaviour {
 	}
 
 	void Update () {
-		QueryUDPConnections ();
-		QueryWebSocketConnections ();
+		ReadAndHandleReceivedMessages ();
 	}
 
 	IEnumerator BackgroundSendGameStateToServerTask() {
@@ -102,6 +101,8 @@ public class DummyPlayer : MonoBehaviour {
 		if (hidingPlace) {
 			hidingPlace.SetHidingPlaceIndex (message.hidingPlace);
 		}
+
+		status = Status.waitingForPlayers;
 	}
 
 	private void HandleServerToClientStartMessage(ServerToClientStartMessage message) {
@@ -129,31 +130,28 @@ public class DummyPlayer : MonoBehaviour {
 		}
 	}
 
-	private void QueryWebSocketConnections() {
-		string serverMessage;
+	private void ReadAndHandleReceivedMessages() {
+		Message serverMessage;
 
 		if (status == Status.titleScreen) {
 			// don't process websockets
 			return;
 		}
 
-		if (serverCommunication.TryGetServerWebSocketMessage (out serverMessage)) {
-			Debug.Log ("Server sent WS : " + serverMessage);
-
-			if (serverMessage.Contains ("ServerToClientHelloMessage")) {
-				Debug.Log ("Setting ID and position");
-				ServerToClientHelloMessage message = JsonUtility.FromJson<ServerToClientHelloMessage> (serverMessage);
-				HandleServerToClientHelloMessage (message);
-				status = Status.waitingForPlayers;
-				connectingScreen.enabled = false;
-				waitingForPlayersScreen.enabled = true;
-				winScreen.enabled = false;
-				loseScreen.enabled = false;
+		if (serverCommunication.TryGetReceivedMessage (out serverMessage)) {
+			var serverToClientHelloMessage = serverMessage as ServerToClientHelloMessage;
+			if (serverToClientHelloMessage != null) {
+				HandleServerToClientHelloMessage (serverToClientHelloMessage);
 			}
 
-			else if (serverMessage.Contains("ServerToClientStartMessage")) {
-				ServerToClientStartMessage message = JsonUtility.FromJson<ServerToClientStartMessage> (serverMessage);
-				HandleServerToClientStartMessage (message);
+			var serverToClientStartMessage = serverMessage as ServerToClientStartMessage;
+			if (serverToClientStartMessage != null) {
+				HandleServerToClientStartMessage (serverToClientStartMessage);
+			}
+
+			var serverGameStateMessage = serverMessage as ServerGameStateMessage;
+			if (serverGameStateMessage != null) {
+				HandleServerGameStateMessage (serverGameStateMessage);
 			}
 		}
 	}
@@ -165,33 +163,22 @@ public class DummyPlayer : MonoBehaviour {
 			return;
 		}
 
-		string text = JsonUtility.ToJson(
-			new ClientGameStateMessage(
-				id,
-				transform.position, 
-				transform.forward, 
-				GetComponent<Rigidbody>().velocity, 
-				frozen,
-				gameId
-			)
+		var message = new ClientGameStateMessage(
+			id,
+			transform.position, 
+			transform.forward, 
+			GetComponent<Rigidbody>().velocity, 
+			frozen,
+			gameId
 		);
-		serverCommunication.SendClientUdpMessage (text);
+		serverCommunication.SendClientMessage (message);
 	}
 
-	private void QueryUDPConnections()
-	{
-		ServerGameStateMessage message = serverCommunication.CheckForOtherClientGameStates ();
-		//Debug.Log (message);
-		if (message == null) {
+	private void HandleServerGameStateMessage(ServerGameStateMessage message) {
+		if (message.gameId != gameId) {
 			return;
 		}
 
-		if (message.gameId == gameId) {
-			ProcessOtherPlayers (message);
-		}
-	}
-
-	private void ProcessOtherPlayers(ServerGameStateMessage message) {
 //		Debug.Log ("Processing other players, message: " + message);
 		foreach (ClientGameStateMessage client in message.clients)
 		{

@@ -11,9 +11,8 @@ using UnityEngine;
 namespace AssemblyCSharp
 {
 	[Serializable]
-	public class ClientGameStateMessage
+	public class ClientGameStateMessage : Message
 	{
-		public string type;
 		public int id;
 		public Vector3Serialisable playerPosition;
 		public Vector3Serialisable playerDirection;
@@ -25,7 +24,6 @@ namespace AssemblyCSharp
 		{
 			this.id = id;
 			this.gameId = gameId;
-			type = this.GetType().Name;
 			playerPosition = new Vector3Serialisable (position);
 			playerDirection = new Vector3Serialisable (forwardDirection);
 			playerVelocity = new Vector3Serialisable (velocity);

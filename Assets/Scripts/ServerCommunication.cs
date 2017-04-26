@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using UnityEngine;
 
 using System;
@@ -20,8 +19,11 @@ public class ServerCommunication : MonoBehaviour {
 	UdpClient udpClient;
 	WebSocket webSocket;
 
-	ConcurrentQueue<string> receivedUdpMessageQueue = new ConcurrentQueue<string>();
-	ConcurrentQueue<string> receivedWebSocketMessageQueue = new ConcurrentQueue<string>();
+	Queue<string> receivedUdpMessageQueue = new Queue<string>();
+	Queue<string> receivedWebSocketMessageQueue = new Queue<string>();
+
+	object udpLock = new object();
+	object wsLock = new object();
 
 	static IPAddress IpV4ForHostname(string hostname) {
 		IPHostEntry hostEntry;
@@ -57,7 +59,9 @@ public class ServerCommunication : MonoBehaviour {
 			string reply = webSocket.RecvString();
 			if (reply != null)
 			{
-				receivedWebSocketMessageQueue.Enqueue (reply);
+				lock (wsLock) {
+					receivedWebSocketMessageQueue.Enqueue (reply);
+				}
 			}
 			if (webSocket.error != null)
 			{
@@ -86,7 +90,9 @@ public class ServerCommunication : MonoBehaviour {
 
 				var serverMessage = text;
 
-				receivedUdpMessageQueue.Enqueue(serverMessage);
+				lock (udpLock) {
+					receivedUdpMessageQueue.Enqueue(serverMessage);
+				}
 			}
 			catch (Exception err)
 			{
@@ -96,7 +102,15 @@ public class ServerCommunication : MonoBehaviour {
 	}
 
 	public bool TryGetServerUdpMessage(out string serverMessage) {
-		return receivedUdpMessageQueue.TryDequeue (out serverMessage);
+		lock (udpLock) {
+			if (receivedUdpMessageQueue.Count > 0) {
+				serverMessage = receivedUdpMessageQueue.Dequeue ();
+				return true;
+			} else {
+				serverMessage = null;
+				return false;
+			}
+		}
 	}
 		
 	public void SendClientUdpMessage(string clientMessage) {
@@ -105,7 +119,15 @@ public class ServerCommunication : MonoBehaviour {
 	}
 
 	public bool TryGetServerWebSocketMessage(out string serverMessage) {
-		return receivedWebSocketMessageQueue.TryDequeue (out serverMessage);
+		lock (wsLock) {
+			if (receivedWebSocketMessageQueue.Count > 0) {
+				serverMessage = receivedWebSocketMessageQueue.Dequeue ();
+				return true;
+			} else {
+				serverMessage = null;
+				return false;
+			}
+		}
 	}
 
 	public void SendClientWebSocketMessage(string clientMessage) {

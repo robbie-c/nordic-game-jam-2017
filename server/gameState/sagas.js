@@ -214,6 +214,6 @@ export default function * saga () {
   yield takeEvery(actions.WS_DISCONNECT, wsDisconnect);
   yield takeEvery(actions.ADMIN_START_GAME, adminStartGame);
   yield takeEvery(actions.REQUEST_START_GAME, startGame);
-  yield takeLatest([actions.START_GAME, actions.FIRST_PLAYER_HIDDEN, actions.LAST_PLAYER_HIDDEN], timeoutGameEnd);
+  yield takeLatest([actions.START_GAME, actions.FIRST_PLAYER_HIDDEN], timeoutGameEnd);
   yield throttle(kGameStateUpdateTickMs, [actions.ADD_PLAYER, actions.PLAYER_STATE_UPDATE], playerStateUpdate);
 }

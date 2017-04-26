@@ -6,10 +6,10 @@ using AssemblyCSharp;
 
 public class HidingPlace : MonoBehaviour {
 
-	Vector3 middleOfHiding;
+	// Vector3 middleOfHiding;
 
 	void Start () {
-		middleOfHiding = transform.position;
+		// middleOfHiding = transform.position;
 	}
 
 	void OnTriggerEnter (Collider other) {
@@ -18,7 +18,7 @@ public class HidingPlace : MonoBehaviour {
 		RespondToHidingPlace actionScript = otherObject.GetComponent<RespondToHidingPlace>();
 		 
 		// actionScript.isInHiding = true;
-		actionScript.EnterHiding(middleOfHiding);
+		actionScript.EnterHiding(transform.position);
 
 		// Tell the server that this player is now hiding
 		DummyPlayer dummyScript = otherObject.GetComponent<DummyPlayer>();

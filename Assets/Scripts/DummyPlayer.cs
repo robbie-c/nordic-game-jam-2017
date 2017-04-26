@@ -13,10 +13,9 @@ public class DummyPlayer : MonoBehaviour {
 	private int id;
 	private int gameId;
 	private Dictionary<int, GameObject> otherPlayers;
-	private bool countingDown = false;
 	private Text countdown;
 	private bool waitingToStart = true;
-	public int startSeconds = 3;
+	public int startSeconds = 0;
 	public int finishSeconds = 10;
 	private PlayerMovement playerMovement;
 	private Image waitingForPlayersScreen;
@@ -111,9 +110,11 @@ public class DummyPlayer : MonoBehaviour {
 		this.transform.position = message.playerPosition.ToVector3 ();
 		if (finalCountingDownCoroutine != null) {
 			StopCoroutine (finalCountingDownCoroutine);
+			finalCountingDownCoroutine = null;
 		}
 		if (startCountingDownCoroutine != null) {
-			return;
+			StopCoroutine (startCountingDownCoroutine);
+			startCountingDownCoroutine = null;
 		}
 		startCountingDownCoroutine = StartCountdown ();
 		StartCoroutine(startCountingDownCoroutine);
@@ -197,9 +198,8 @@ public class DummyPlayer : MonoBehaviour {
 			Vector3 position = client.playerPosition.ToVector3 ();
 			Vector3 velocity = client.playerVelocity.ToVector3 ();
 			Vector3 direction = client.playerDirection.ToVector3 ();
-			bool frozen = client.frozen;
-			if (!countingDown && frozen) {
-				countingDown = true;
+
+			if (finalCountingDownCoroutine == null && client.frozen) {
 				finalCountingDownCoroutine = FinalCountdown ();
 				StartCoroutine(finalCountingDownCoroutine);
 			}
@@ -211,13 +211,13 @@ public class DummyPlayer : MonoBehaviour {
 			} 
 
 			GameObject otherPlayer;
-			if (otherPlayers.ContainsKey (id)) {
+			if (otherPlayers.ContainsKey (otherId)) {
 //				Debug.Log ("Found player with id " + id.ToString());
-				otherPlayer = otherPlayers [id];
+				otherPlayer = otherPlayers [otherId];
 			} else {
 //				Debug.Log ("Creating new player with id: " + id.ToString());
 				otherPlayer = Instantiate(prefab, position, Quaternion.identity);
-				otherPlayers.Add (id, otherPlayer);
+				otherPlayers.Add (otherId, otherPlayer);
 			}
 			var otherPlayerScript = otherPlayer.GetComponent<OtherPlayer> ();
 			otherPlayerScript.desiredPosition = position;
@@ -228,27 +228,31 @@ public class DummyPlayer : MonoBehaviour {
 
 	IEnumerator FinalCountdown()
 	{
+		Debug.Log ("hit final countdown");
+		countdown.enabled = true;
 		int progress = this.finishSeconds;
+		Debug.Log ("progress = " + progress.ToString());
 
 		while (progress >= 0)
 		{
+			Debug.Log ("progress = " + progress.ToString());
 			countdown.text = progress.ToString();
 			progress -= 1;
 			yield return new WaitForSeconds(1);
-
 		}
 		yield return true;
-
 		finalCountingDownCoroutine = null;
 
+		countdown.enabled = false;
 		FinishGame ();
 	}
 
 	IEnumerator StartCountdown()
 	{
+		countdown.enabled = true;
 		int progress = this.startSeconds;
-
-		while (progress >= 0)
+		Debug.Log (progress);
+		while (progress > 0)
 		{
 			countdown.text = progress.ToString();
 			progress -= 1;
@@ -256,6 +260,7 @@ public class DummyPlayer : MonoBehaviour {
 
 		}
 		yield return true;
+		countdown.enabled = false;
 
 		startCountingDownCoroutine = null;
 		StartGame();

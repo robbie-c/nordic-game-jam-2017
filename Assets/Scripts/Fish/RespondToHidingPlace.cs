@@ -30,6 +30,7 @@ public class RespondToHidingPlace : MonoBehaviour {
 	private Quaternion originalCamRotation;
 	private Vector3 originalCamPosition;
 	private Transform oldParent;
+	private bool flagReset;
 
 	public void EnterHiding (Vector3 middle) {
 		Debug.Log(this + " called EnterHiding at position: " + middle);
@@ -43,19 +44,29 @@ public class RespondToHidingPlace : MonoBehaviour {
 		entryPoint = transform.position;
 
 		if (playerMovementScript != null) {
-			oldParent = cam.transform.parent;
-			cam.transform.parent = null; // Detach camera from player
+			// oldParent = cam.transform.parent;
+			// cam.transform.parent = null; // Detach camera from player
+			flagReset = true;
 		}
 	}
 
 	public void ExitHiding () {
-		cam.transform.parent = oldParent;
+		Debug.Log("ExitHiding");
+
+		playerMovementScript.ResetMovementBools();
+
+		// cam.transform.parent = oldParent;
 		cam.transform.localRotation = originalCamRotation;
 		cam.transform.localPosition = originalCamPosition;
 
-		oldParent = null;
+		// oldParent = null;
+		flagReset = false;
 		playerRigidbody.transform.rotation = Quaternion.identity;
 	}
+
+	// public void InitialiseFishPositions () {
+
+	// }
 
 	void Start () {
 		playerRigidbody = GetComponent<Rigidbody> ();
@@ -68,6 +79,9 @@ public class RespondToHidingPlace : MonoBehaviour {
 		Debug.Log("cam = " + cam);
 		originalCamPosition = cam.transform.localPosition;
 		originalCamRotation = cam.transform.localRotation;
+
+		// ExitHiding();
+
 	}
 
 	void FixedUpdate () {
@@ -82,7 +96,7 @@ public class RespondToHidingPlace : MonoBehaviour {
 			if (playerMovementScript != null) MovePlayerCamera(middleOfHiding + Vector3.up * 10f, Vector3.down);
 		}
 
-		if (!dummyPlayer.frozen && oldParent) {
+		if (!dummyPlayer.frozen && flagReset/*&& oldParent*/) {
 			ExitHiding ();
 		}
 	}

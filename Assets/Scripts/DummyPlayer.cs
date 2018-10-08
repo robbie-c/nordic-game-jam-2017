@@ -52,8 +52,9 @@ public class DummyPlayer : MonoBehaviour {
 		connectingScreen.enabled = false;
 		status = Status.titleScreen;
 
+		//line below commented out for test
 		// TODO: in real game, this needs to be uncommented
-		playerMovement.enabled = false;
+		//playerMovement.enabled = false;
 
 		countdown.enabled = false;
 
@@ -74,7 +75,8 @@ public class DummyPlayer : MonoBehaviour {
 	public void EndTitleScreen() {
 		titleScreen.gameObject.active = false;
 		status = Status.connecting;
-		connectingScreen.enabled = true;
+		//line below commented out for test
+		//connectingScreen.enabled = true;
 	}
 
 	void Update () {
@@ -93,7 +95,8 @@ public class DummyPlayer : MonoBehaviour {
 		this.gameId = message.gameId;
 		this.transform.position = message.playerPosition.ToVector3 ();
 		connectingScreen.enabled = false;
-		waitingForPlayersScreen.enabled = true;
+		//line below commented out for test
+		//waitingForPlayersScreen.enabled = true;
 		winScreen.enabled = false;
 		loseScreen.enabled = false;
 
@@ -101,8 +104,8 @@ public class DummyPlayer : MonoBehaviour {
 		if (hidingPlace) {
 			hidingPlace.SetHidingPlaceIndex (message.hidingPlace);
 		}
-
-		status = Status.waitingForPlayers;
+		//line below commented out for test
+		//status = Status.waitingForPlayers;
 	}
 
 	private void HandleServerToClientStartMessage(ServerToClientStartMessage message) {
